@@ -1,9 +1,12 @@
 #!/bin/bash
 set -u
 dtg=${1}
-topoutdir=${2}
+
+SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
-dir=${topoutdir}/${dtg}/mem000/med
+source ${SCRIPT_DIR}/defaults.sh
+
+dir=${IC_DIR}/${dtg}/mem000/med
 mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING MEDIATOR data to ${dir}"
 

@@ -1,9 +1,11 @@
 #!/bin/bash
 set -xu
 dtg=${1}
-topoutdir=${2}
-dir=${topoutdir}/${dtg}/mem000/ice
+SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
+source ${SCRIPT_DIR}/defaults.sh
+
+dir=${IC_DIR}/${dtg}/mem000/ice
 mkdir -p ${dir} && cd ${dir}
 
 echo "DOWNLOADING CICE data to ${dir}"

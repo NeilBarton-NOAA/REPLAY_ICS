@@ -61,7 +61,6 @@ export SCRIPT_DIR=${CYLC_SUITE_DEF_PATH}/SCRIPTS
 """
         pre-script = """
 source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/modules.sh
-source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/defaults.sh
         """
 #        post-script = """
 #rm -r ${CYLC_TASK_WORK_DIR}
@@ -93,7 +92,7 @@ source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/defaults.sh
         inherit = WGET
         script = """
         model=${CYLC_TASK_PARAM_models}
-        ${SCRIPT_DIR}/wget_${model}.sh ${DTG} ${IC_DIR} 
+        ${SCRIPT_DIR}/wget_${model}.sh ${DTG} 
         """
     [[POST]]
         [[[job]]]
@@ -102,7 +101,7 @@ source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/defaults.sh
         inherit = POST
         script = """
         model=${CYLC_TASK_PARAM_post_models}
-        ${SCRIPT_DIR}/post_${model}.sh ${DTG} ${IC_DIR} 
+        ${SCRIPT_DIR}/post_${model}.sh ${DTG}
         """
 #    [[GRAB_OBS]]
 #        inherit = HPSS 

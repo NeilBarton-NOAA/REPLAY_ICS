@@ -1,9 +1,11 @@
 #!/bin/bash
 set -u
 dtg=${1}
-topoutdir=${2}
+SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
-dir=${topoutdir}/${dtg}/mem000/wave
+source ${SCRIPT_DIR}/defaults.sh
+
+dir=${IC_DIR}/${dtg}/mem000/wave
 mkdir -p ${dir} && cd ${dir}
 
 echo "DOWNLOADING WAVEWATCHIII data to ${dir}"

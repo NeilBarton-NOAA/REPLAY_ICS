@@ -1,14 +1,15 @@
 #!/bin/bash
 set -u
 dtg=${1}
-topoutdir=${2}
+SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
-files='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data'
-dir=${topoutdir}/${dtg}/mem000/atmos
+source ${SCRIPT_DIR}/defaults.sh
+
+dir=${IC_DIR}/${dtg}/mem000/atmos
 mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING FV3 data to ${dir}"
-echo "${aws_path}/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06/"
 
+files='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data'
 for f in ${files}; do
     for tile in $(seq 1 6); do
         file_in=${f}.tile${tile}.nc 

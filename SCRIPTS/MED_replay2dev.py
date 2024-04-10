@@ -67,6 +67,15 @@ const_lhvap = 2.501e6  # latent heat of evaporation  used in replay (J/kg)
 rdat['atmImp_Faxa_evap'] = (rdat['atmImp_Faxa_lat'].dims, -1.0 * rdat['atmImp_Faxa_lat'].values / const_lhvap)
 
 ################################################
+# copy wavExp_ to  wavExpAccum_
+#   replay was done with waves in faster coupling loop, which the accumaltion variables did not write correctly
+for v in r_vars:
+    if v[0:7] == 'wavExp_':
+        variable = v.split('wavExp_')[-1]
+        print('Copying wavExp_' + variable + ' to wavExpAccum_' + variable)
+        rdat[v] = (rdat[v].dims, rdat['wavExpAccum_' + variable].values)
+
+################################################
 # add new variables as zeros
 diff_vars = list(d_vars - r_vars)
 for v in diff_vars:

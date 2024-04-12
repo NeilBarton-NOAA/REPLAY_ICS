@@ -69,12 +69,20 @@ rdat['atmImp_Faxa_evap'] = (rdat['atmImp_Faxa_lat'].dims, -1.0 * rdat['atmImp_Fa
 ################################################
 # copy wavExp_ to  wavExpAccum_
 #   replay was done with waves in faster coupling loop, which the accumaltion variables did not write correctly
+#multi = rdat['ocnExpAccum_cnt'].values
 for v in r_vars:
     if v[0:7] == 'wavExp_':
         variable = v.split('wavExp_')[-1]
         print('Copying wavExp_' + variable + ' to wavExpAccum_' + variable)
-        rdat[v] = (rdat[v].dims, rdat['wavExpAccum_' + variable].values)
-
+        #if variable in ['lat', 'lon', 'Sa_u10m', 'Sa_v10m', 'So_u', 'So_v']:
+        #    rdat['wavExpAccum_' + variable] = (rdat[v].dims, rdat[v].values)
+        #else:
+        #    rdat['wavExpAccum_' + variable] = (rdat[v].dims, rdat[v].values * multi)
+        rdat['wavExpAccum_' + variable] = (rdat[v].dims, rdat[v].values)
+#v_check = 'wavExpAccum_Sa_u10m'
+#print(v_check)
+#print(multi)
+#print(rdat[v_check].min().values, rdat[v_check].max().values)
 ################################################
 # add new variables as zeros
 diff_vars = list(d_vars - r_vars)

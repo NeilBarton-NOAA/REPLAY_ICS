@@ -3,7 +3,7 @@ SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
 ############
 # top IC directory
 IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs
-DTG_TEXT=${DTG:0:8}.${DTG:8:2}0000
+DTG_TEXT=${DTG:0:8}.030000 # restarts are +3
 mkdir -p ${IC_DIR}
 
 ############

@@ -1,15 +1,23 @@
 set -xu
 SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
+
+############
+# number of ensembles
+NENS=10
+
+############
+# time stamp for files
+DTG_TEXT=${dtg:0:8}.030000 # restarts are +3
+
 ############
 # top IC directory
 IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs
-DTG_TEXT=${DTG:0:8}.030000 # restarts are +3
 mkdir -p ${IC_DIR}
 
 ############
 # Replay Restarts
-#https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${DTG:0:4}/${DTG:4:2}/${DTG:0:8}06"
+# https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
+aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
 
 ############
 # Ocean perturbation files:
@@ -17,6 +25,6 @@ hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/2year/Philip.Pegion/ocean_ensemble_pert
 
 ############
 # Atmosphere perturbation files:
-export hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
+hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
 
 

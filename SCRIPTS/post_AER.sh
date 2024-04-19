@@ -19,7 +19,11 @@ fi
 # download data
 cd ${dir}
 https=https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/
-merra_file=MERRA2_400.inst3_3d_aer_Nv.${dtg:0:8}.nc4
+MN=400
+if [[ ${dtg:0:4} == "2008" ]]; then
+ MN=300
+fi
+merra_file=MERRA2_${MN}.inst3_3d_aer_Nv.${dtg:0:8}.nc4
 # first try to download from HPSS
 htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/MERRA2_400.inst_3d_aero_Nv.${dtg:0:4}.nc4 ${merra_file}
 # if doesn't exist wget from server

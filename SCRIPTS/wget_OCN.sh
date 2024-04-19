@@ -8,7 +8,7 @@ source ${SCRIPT_DIR}/defaults.sh
 dir=${IC_DIR}/${dtg}/mem000/ocean
 mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING MOM6 data to ${dir}"
-WGET_AWS -nc ${aws_path}/MOM.res.nc -o ${DTG_TEXT}.MOM_res.nc
+WGET_AWS ${aws_path}/MOM.res.nc ${DTG_TEXT}.MOM.res.nc
 for i in $(seq 1 3); do
     WGET_AWS ${aws_path}/MOM.res_${i}.nc ${DTG_TEXT}.MOM.res_${i}.nc
 done

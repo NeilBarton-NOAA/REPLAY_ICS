@@ -3,8 +3,12 @@ SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
 
 ############
 # number of ensembles
-NENS=10
-
+dow=$(date -d "${dtg:0:8}" +%A)
+if [[ ${dow} == "Thursday" ]] || [[ ${dow} == "Monday" ]]; then
+    NENS=10
+else
+    NENS=5
+fi
 ############
 # time stamp for files
 DTG_TEXT=${dtg:0:8}.030000 # restarts are +3

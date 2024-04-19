@@ -2,13 +2,12 @@
 ########################
 # Items that may need changed
 {% set MAIL_ADDRESS = "neil.barton@noaa.gov" %}
-{% set MEMBERS = 1 %}
 
 ####################################
 # define suite
 #   hopefully user does not have to edit anything below here
-{% set ICP = '20080502' %}
-{% set FCP = '20080502' %}
+{% set ICP = '20080501' %}
+{% set FCP = '20080507' %}
 {% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
 {% set POST_MODELS = "AER, ICE, MED" %}
 {% set INCREMENT_MODELS = "ATM, OCN" %}
@@ -24,32 +23,26 @@
         models = {{ MODELS }}
         post_models = {{ POST_MODELS }}
         increment_models = {{ INCREMENT_MODELS }}
-        member = 0..{{ MEMBERS - 1 }}
 
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    max active cycle points = 1
+    max active cycle points = 4
     [[queues]]
         [[[default]]]
             limit = 42
     [[dependencies]]
 
-[[[P1W]]]
+[[[P1D]]]
     graph = """
         WGET
         wget_ATM      => post_AER 
         wget_ICE      => post_ICE
         wget_MED      => post_MED
-        # interpolate in the future
-        GET_INCREMENTS
-
-#      get_increments_OCN
-#      get_increments_ATM
         GET_INCREMENTS:succeed-all => link_member_dirs
         WGET:succeed-all           => link_member_dirs
         POST:succeed-all           => link_member_dirs
-        link_member_dirs           => ICS_TO_HPSS
+        link_member_dirs           => ics_to_hpss
         """
 
 ################################################
@@ -64,14 +57,16 @@ export SCRIPT_DIR=${CYLC_SUITE_DEF_PATH}/SCRIPTS
         pre-script = """
 source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/modules.sh
         """
-#        post-script = """
-#rm -r ${CYLC_TASK_WORK_DIR}
-#        """
+        post-script = """
+rm -r ${CYLC_TASK_WORK_DIR}
+        """
         [[[environment]]]
             DTG                 = $(cylc cycle-point --template=%Y%m%d%H)
         [[[job]]]
             #execution retry delays = 3*PT10M
             batch system = slurm
+        #[[[job]]]
+        #    batch system = background
         #[[[events]]]
         #    failed handler  = cylc email-task
         #    submission failed handler = cylc email-task
@@ -88,8 +83,6 @@ source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/modules.sh
         [[[directives]]]
             --partition = service
     [[WGET]]
-        [[[job]]]
-            batch system = background
     [[wget<models>]]
         inherit = WGET
         script = """
@@ -97,8 +90,6 @@ source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/modules.sh
         ${SCRIPT_DIR}/wget_${model}.sh ${DTG} 
         """
     [[POST]]
-        [[[job]]]
-            batch system = background
     [[post<post_models>]]
         inherit = POST
         script = """
@@ -106,29 +97,22 @@ source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/modules.sh
         ${SCRIPT_DIR}/post_${model}.sh ${DTG}
         """
     [[GET_INCREMENTS]]
-        [[[job]]]
-            batch system = background
+        inherit = HPSS
     [[get_increments<increment_models>]]
         inherit = GET_INCREMENTS
         script = """
         model=${CYLC_TASK_PARAM_increment_models}
-        ${SCRIPT_DIR}/hpssget_increments_${model}.sh ${DTG} 
+        ${SCRIPT_DIR}/hpss_get_increments_${model}.sh ${DTG} 
         """
     [[link_member_dirs]]
         script = """
         ${SCRIPT_DIR}/link_member_dirs.sh ${DTG} 
         """
-    [[ICS_TO_HPSS]]
+        [[[job]]]
+            batch system = background
+    [[ics_to_hpss]]
+        inherit = HPSS
         script = """
-        exit 1
-        ${SCRIPT_DIR}/wget_${model}.sh ${DTG} 
+        ${SCRIPT_DIR}/hpss_put_ICs.sh ${DTG} 
         """
-#    [[GRAB_OBS]]
-#        inherit = HPSS 
-#    [[grab_sea_ice_exents]]
-#        inherit = GRAB_OBS
-#        script = """
-#        ${CYLC_SUITE_DEF_PATH}/SCRIPTS/GRAB_ice_extent_from_hpss.sh 
-#        """
-
    

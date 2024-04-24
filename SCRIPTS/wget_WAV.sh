@@ -10,6 +10,6 @@ mkdir -p ${dir} && cd ${dir}
 
 echo "DOWNLOADING WAVEWATCHIII data to ${dir}"
 file_in=restart.ww3
-file_out=${DTG_TEXT}.restart_glo025
+file_out=${DTG_TEXT}.restart.glo_025
 WGET_AWS ${aws_path}/${file_in} ${file_out}
 

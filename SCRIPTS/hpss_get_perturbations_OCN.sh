@@ -3,7 +3,7 @@ set -u
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-inc_dir=${IC_DIR}/${dtg}/ocean/increments
+inc_dir=${IC_DIR}/${dtg}/ocean/perturbation
 mkdir -p ${inc_dir} && cd ${inc_dir}
 echo "DOWNLOADING OCN INCREMENT data to ${inc_dir}"
 cd ${inc_dir}
@@ -27,10 +27,10 @@ for n in $( seq 1 ${LN} ); do
     mem=$(printf "%03d" ${n})
     dir=${IC_DIR}/${dtg}/mem${mem}/ocean
     mkdir -p ${dir}
-    inc_file=${dir}/${DTG_TEXT}.mom6_increment.nc
+    inc_file=${dir}/${DTG_TEXT}.mom6_perturbation.nc
     mv ${inc_dir}/${dtg}/mem${mem}_pert.nc ${inc_file}
     if (( ${?} > 0 )); then
-        echo 'ERROR in copying increment'
+        echo 'ERROR in copying perturbation'
         echo "  mv ${inc_dir}/${dtg}/mem${mem}_pert.nc ${inc_file}"
         exit 1
     fi
@@ -39,10 +39,10 @@ done
 if [[ ${LN} == 4 ]]; then
     dir=${IC_DIR}/${dtg}/mem005/ocean
     mkdir -p ${dir} && cd ${dir}
-    ln -s ../../mem001/ocean/${DTG_TEXT}.mom6_increment.nc .
+    ln -s ../../mem001/ocean/${DTG_TEXT}.mom6_perturbation.nc .
 fi
 
-ls ${IC_DIR}/${dtg}/mem???/ocean/${DTG_TEXT}.mom6_increment.nc
+ls ${IC_DIR}/${dtg}/mem???/ocean/${DTG_TEXT}.mom6_perturbation.nc
 rm -r ${IC_DIR}/${dtg}/ocean
-echo 'OCN increment files downloaded and put into mem directories'
+echo 'OCN perturbation files downloaded and put into mem directories'
 exit 0

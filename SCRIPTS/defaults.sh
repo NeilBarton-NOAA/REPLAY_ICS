@@ -11,7 +11,7 @@ else
 fi
 ############
 # time stamp for files
-DTG_TEXT=${dtg:0:8}.030000 # restarts are +3
+DTG_TEXT=${dtg:0:8}.${dtg:8:10}0000 # restarts valid at +3 but labeled 00 for g-w
 
 ############
 # top IC directory

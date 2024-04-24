@@ -39,11 +39,24 @@ if [ ! -f ${merra_file} ]; then
     echo "  check comments in post_AER.sh script"
     exit 1
 fi
+
 ###########
 # add data to fv_core files
 for i in {1..6}; do 
     ${dir_aer_code}/merra2_to_ufs_cubesphere_restarts.py -m ${merra_file} -c ${DTG_TEXT}.fv_core.res.nc -t ${DTG_TEXT}.fv_tracer.res.tile${i}.nc -r C384 -cyc 1
 done
+
+############
+# remove checksum in files or code will fail
+files=$( ls *fv_tracer*.nc )
+for f in ${files}; do 
+    ncatted -a checksum,,d,, $f
+    if (( ${?} > 0 )); then
+        echo 'ncatted command failed'
+        exit 1
+    fi
+done
+
 ############
 # clean up files
 rm ${merra_file}

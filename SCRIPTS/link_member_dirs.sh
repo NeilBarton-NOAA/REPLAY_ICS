@@ -10,7 +10,7 @@ dir=${IC_DIR}/${dtg}/
 atm_files='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data'
 ocn_file="MOM.res"
 ice_file="cice_model.res.nc"
-wav_file="restart_"
+wav_file="restart."
 med_file="ufs.cpld.cpl.r.nc"
 for i in $(seq 1 ${NENS}); do
     mem=$(printf "%03d" ${i})
@@ -38,3 +38,12 @@ for i in $(seq 1 ${NENS}); do
     mkdir -p ${dir} && cd ${dir}
     ln -sf ../../mem000/${model}/${DTG_TEXT}.${med_file} .
 done
+
+cd ${IC_DIR}/${dtg}
+cat <<EOF > README
+REPLAY ICS are valid at 03Z
+The files are labeled at 00Z for minimal impact on g-w
+EOF
+
+
+

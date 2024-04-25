@@ -26,6 +26,7 @@ fi
 merra_file=MERRA2_${MN}.inst3_3d_aer_Nv.${dtg:0:8}.nc4
 # first try to download from HPSS
 htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/MERRA2_400.inst_3d_aero_Nv.${dtg:0:4}.nc4 ${merra_file}
+
 # if doesn't exist wget from server
 #   needs to be set up to download
 #       (1) EARTHDATA LOGIN https://urs.earthdata.nasa.gov/
@@ -50,7 +51,7 @@ done
 # remove checksum in files or code will fail
 files=$( ls *fv_tracer*.nc )
 for f in ${files}; do 
-    ncatted -a checksum,,d,, $f
+    ncatted -a checksum,,d,, ${f}
     if (( ${?} > 0 )); then
         echo 'ncatted command failed'
         exit 1

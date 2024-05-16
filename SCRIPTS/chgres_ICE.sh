@@ -1,0 +1,52 @@
+#!/bin/sh
+set -xu
+dtg=${1}
+SCRIPT_DIR=$(dirname "$0")
+source ${SCRIPT_DIR}/defaults.sh
+dir=${IC_DIR}/${dtg}/mem000/ice
+compiler=gnu
+
+########################
+HOMEufs=${SCRIPT_DIR}/UFS_UTILS
+OCNICEPREP=${HOMEufs}/sorc/ocnice_prep.fd
+EXEC=${HOMEufs}/exec/oiprep
+FIXDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/FIX/rt_1191124
+#FIXDIR='/scratch1/NCEPDEV/stmp4/Denise.Worthen/CPLD_GRIDGEN/rt_1191124/'
+
+########################
+WORKDIR=${dir}/TEST/CHGRES
+mkdir -p ${WORKDIR} && cd ${WORKDIR}
+ln -sf ${dir}/${DTG_TEXT}.cice_model.res.nc ${WORKDIR}/ice.nc
+ln -sf ${OCNICEPREP}/ice.csv ${WORKDIR}
+
+cat << EOF > ocniceprep.nml
+&ocniceprep_nml
+ftype='ice'
+wgtsdir="${FIXDIR}"
+griddir="${FIXDIR}"
+srcdims=1440,1080
+dstdims=360,320
+debug=.true.
+/
+EOF
+
+########################
+# modules
+module purge
+module use ${HOMEufs}/modulefiles
+module load build.hera.${compiler}
+
+########################
+# run
+${EXEC} 
+if (( ${?} > 0 )); then
+    echo 'chgres_OCN failed'
+    exit 1
+fi
+
+mv ${WORKDIR}/ice.mx100.nc ${dir}/${DTG_TEXT}.cice_model.res.nc
+rm -rf ${WORKDIR}
+
+echo 'NPB check'
+exit 1
+

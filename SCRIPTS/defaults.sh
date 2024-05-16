@@ -11,11 +11,11 @@ else
 fi
 ############
 # time stamp for files
-DTG_TEXT=${dtg:0:8}.${dtg:8:10}0000 # restarts valid at +3 but labeled 00 for g-w
+DTG_TEXT=${dtg:0:8}.030000 # restarts valid at 
 
 ############
 # top IC directory
-IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs
+IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
 mkdir -p ${IC_DIR}
 
 ############
@@ -27,7 +27,7 @@ aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4
 # Ocean perturbation files:
 hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/2year/Philip.Pegion/ocean_ensemble_perts/C384
 
-############
+########################
 # Atmosphere perturbation files:
 hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
 

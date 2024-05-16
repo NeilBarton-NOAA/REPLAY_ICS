@@ -4,7 +4,6 @@ dtg=${1}
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-
 dir=${IC_DIR}/${dtg}/
 
 atm_files='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data'
@@ -40,9 +39,12 @@ for i in $(seq 1 ${NENS}); do
 done
 
 cd ${IC_DIR}/${dtg}
+current_time=$(date)
 cat <<EOF > README
+RESOLUTION: ${ATMRES}${OCNRES}
 REPLAY ICS are valid at 03Z
-The files are labeled at 00Z for minimal impact on g-w
+The file folders are at 00Z to run in g-w
+Files Created on ${current_time}
 EOF
 
 

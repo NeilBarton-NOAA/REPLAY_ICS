@@ -8,10 +8,10 @@ dir=${IC_DIR}/${dtg}/mem000/atmos
 
 echo "Adding Aerosols to FV3 Files in ${dir}"
 
-dir_aer_code=${SCRIPT_DIR}/MERRA2_UFS_ICS
+dir_aer_code=${CODE_DIR}/MERRA2_UFS_ICS
 if [[ ! -d ${dir_aer_code} ]]; then
     echo "Checking out Code"
-    cd ${SCRIPT_DIR}
+    mkdir -p ${CODE_DIR} && cd ${CODE_DIR}
     git clone https://github.com/noaa-oar-arl/MERRA2_UFS_ICS
 fi
 

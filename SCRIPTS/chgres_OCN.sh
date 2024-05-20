@@ -7,7 +7,7 @@ dir=${IC_DIR}/${dtg}/mem000/ocean
 compiler=gnu
 
 ########################
-HOMEufs=${SCRIPT_DIR}/UFS_UTILS
+HOMEufs=${CODE_DIR}/UFS_UTILS
 OCNICEPREP=${HOMEufs}/sorc/ocnice_prep.fd
 EXEC=${HOMEufs}/exec/oiprep
 FIXDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/FIX/rt_1191124

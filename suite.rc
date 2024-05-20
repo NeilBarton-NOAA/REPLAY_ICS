@@ -6,13 +6,22 @@
 ####################################
 # define suite
 #   hopefully user does not have to edit anything below here
-{% set ICP = '20171005' %}
+{% set ICP = '20170501' %}
 {% set FCP = '20171015' %}
+{% set CHGRES_MODELS = "ATM, OCN, ICE" %}
+{% set ATMRES = "C96" %}
+{% set OCNRES = "mx100" %}
+
+{% if ATMRES == "C384" %}
 {% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
 {% set POST_MODELS = "AER, ICE, MED" %}
+{% else %}
+{% set MODELS = "ATM, OCN, ICE" %}
+{% set POST_MODELS = "AER, ICE" %}
+{% endif %}
+
+
 {% set PERTURBATION_MODELS = "ATM, OCN" %}
-{% set ATMRES = "C384" %}
-{% set OCNRES = "mx025" %}
 
 [meta]
     title = "grab, process, organize, and store replay ICs"
@@ -25,6 +34,7 @@
         models = {{ MODELS }}
         post_models = {{ POST_MODELS }}
         perturbation_models = {{ PERTURBATION_MODELS }}
+        chgres_models = {{ CHGRES_MODELS }}
 
 [scheduling]
     initial cycle point = {{ ICP }}
@@ -35,34 +45,37 @@
             limit = 42
     [[dependencies]]
 
-[[[P1W]]]
+[[[R1]]]
     graph = """
-        WGET
         {% if ATMRES != 'C384' or OCNRES != 'mx025' %} 
         chgres_compile
         {% endif %}
+    """
+
+[[[P1Y]]]
+    graph = """
+        WGET
         
-        wget_ICE      => post_ICE
-        {% if ATMRES == 'C384' %} 
+        wget_ICE        => post_ICE
         wget_ATM        => post_AER 
+
+        {% if ATMRES == 'C384' %} 
         wget_MED        => post_MED
         {% else %}
-        wget_ATM        => chgres_ATM
-        chgres_compile  => chgres_ATM
+        post_AER        => chgres_ATM
         chgres_ATM      => link_member_dirs
         {% endif %}
         
         {% if OCNRES != 'mx025' %}
-        chgres_compile  => chgres_ICE & chgres_OCN
         post_ICE        => chgres_ICE
         wget_OCN        => chgres_OCN
         CHGRES:succeed-all => link_member_dirs
         {% endif %}
         
         GET_PERTURBATIONS:succeed-all => link_member_dirs
-        WGET:succeed-all           => link_member_dirs
-        POST:succeed-all           => link_member_dirs
-        link_member_dirs           => ics_to_hpss
+        WGET:succeed-all              => link_member_dirs
+        POST:succeed-all              => link_member_dirs
+        link_member_dirs              => ics_to_hpss
         
         """
 
@@ -130,6 +143,19 @@ rm -r ${CYLC_TASK_WORK_DIR}
         script = """
         model=${CYLC_TASK_PARAM_perturbation_models}
         ${SCRIPT_DIR}/hpss_get_perturbations_${model}.sh ${DTG} 
+        """
+    [[chgres_compile]]
+        script = """
+        ${SCRIPT_DIR}/chgres_compile.sh 
+        """
+        [[[job]]]
+            batch system = background
+    [[CHGRES]]
+    [[chgres<chgres_models>]]
+        inherit = CHGRES
+        script = """
+        model=${CYLC_TASK_PARAM_chgres_models}
+        ${SCRIPT_DIR}/chgres_${model}.sh ${DTG}
         """
     [[link_member_dirs]]
         script = """

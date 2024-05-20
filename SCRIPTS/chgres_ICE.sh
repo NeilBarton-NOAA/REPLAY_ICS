@@ -4,17 +4,17 @@ dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
 dir=${IC_DIR}/${dtg}/mem000/ice
-compiler=gnu
+compiler=intel
 
 ########################
-HOMEufs=${SCRIPT_DIR}/UFS_UTILS
+HOMEufs=${CODE_DIR}/UFS_UTILS
 OCNICEPREP=${HOMEufs}/sorc/ocnice_prep.fd
 EXEC=${HOMEufs}/exec/oiprep
 FIXDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/FIX/rt_1191124
 #FIXDIR='/scratch1/NCEPDEV/stmp4/Denise.Worthen/CPLD_GRIDGEN/rt_1191124/'
 
 ########################
-WORKDIR=${dir}/TEST/CHGRES
+WORKDIR=${dir}/CHGRES
 mkdir -p ${WORKDIR} && cd ${WORKDIR}
 ln -sf ${dir}/${DTG_TEXT}.cice_model.res.nc ${WORKDIR}/ice.nc
 ln -sf ${OCNICEPREP}/ice.csv ${WORKDIR}
@@ -38,9 +38,11 @@ module load build.hera.${compiler}
 
 ########################
 # run
-${EXEC} 
+cp ${EXEC} .
+srun -n 1 ./$( basename ${EXEC} )
+
 if (( ${?} > 0 )); then
-    echo 'chgres_OCN failed'
+    echo 'chgres_ICE failed'
     exit 1
 fi
 

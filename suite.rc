@@ -45,12 +45,12 @@
             limit = 42
     [[dependencies]]
 
-[[[R1]]]
-    graph = """
-        {% if ATMRES != 'C384' or OCNRES != 'mx025' %} 
-        chgres_compile => CHGRES
-        {% endif %}
-    """
+#[[[R1]]]
+#    graph = """
+#        {% if ATMRES != 'C384' or OCNRES != 'mx025' %} 
+#        chgres_compile => CHGRES
+#        {% endif %}
+#    """
 
 [[[P1Y]]]
     graph = """
@@ -144,12 +144,12 @@ rm -r ${CYLC_TASK_WORK_DIR}
         model=${CYLC_TASK_PARAM_perturbation_models}
         ${SCRIPT_DIR}/hpss_get_perturbations_${model}.sh ${DTG} 
         """
-    [[chgres_compile]]
-        script = """
-        ${SCRIPT_DIR}/chgres_compile.sh 
-        """
-        [[[job]]]
-            batch system = background
+    #[[chgres_compile]]
+    #    script = """
+    #    ${SCRIPT_DIR}/chgres_compile.sh 
+    #    """
+    #    [[[job]]]
+    #        batch system = background
     [[CHGRES]]
         [[[directives]]]
             --ntasks = 6

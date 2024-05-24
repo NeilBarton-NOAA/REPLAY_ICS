@@ -1,8 +1,10 @@
 #!/bin/sh
 set -xu
 # compiles chgres program
-SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR=$(dirname "$0")/SCRIPTS
 dtg=2017100100 # dummy variable
+ATMRES=DUMMY
+OCNRES=DUMMY
 source ${SCRIPT_DIR}/defaults.sh
 CODE=https://github.com/DeniseWorthen/UFS_UTILS.git
 HASH=feature/ocnprep
@@ -21,10 +23,6 @@ bash link_fixdirs.sh emc hera
 
 # compile
 cd ${CODE_DIR}/UFS_UTILS
-echo 'Remove machine setup call'
-#exit 1
-#sed -i /"module purge"/d ${CODE_DIR}/UFS_UTILS/sorc/machine-setup.sh
-module purge
 bash build_all.sh
 if (( ${?} != 0 )); then
     echo 'COMPILE failed'

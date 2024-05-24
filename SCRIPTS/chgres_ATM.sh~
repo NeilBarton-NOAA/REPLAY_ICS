@@ -1,0 +1,145 @@
+#!/bin/sh
+set -xu
+dtg=2017100500
+ATMRES=C96
+OCNRES=mx100
+#SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR=${PWD}
+source ${SCRIPT_DIR}/defaults.sh
+export DATA=${NPB_WORKDIR}/TEST/CHGRES_ATMOS
+#dir="/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/TEST_CHGRES/2017100500/mem000/atmos"
+dir="/scratch2/NCEPDEV/stmp3/Neil.Barton/atmos"
+export DATA=${dir}
+#dir=${IC_DIR}/${dtg}/mem000/atmos
+SRC_ATMRES="384"
+SRC_OCNRES="025"
+cd ${DATA}
+########################
+# chgres_cube.sh options
+#export HOMEufs=${SCRIPT_DIR}/UFS_UTILS
+export HOMEufs=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/UFS_UTILS_NOAA-EMC
+#export HOMEufs=/scratch2/NCEPDEV/stmp3/Neil.Barton/TEST/UFS_UTILS
+export INPUT_TYPE="restart"
+export COMIN=${dir} 
+export CDATE=${dtg:0:8}03
+export ocn=${OCNRES:2:3}
+export VCOORD_FILE="${HOMEufs}/fix/am/global_hyblev.l128.txt"
+export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/C${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
+export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
+export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/C${SRC_ATMRES}"
+export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
+
+F=""
+F=${F}'C'${SRC_ATMRES}.mx${SRC_OCNRES}'_oro_data.tile1.nc","'
+F=${F}'C'${SRC_ATMRES}.mx${SRC_OCNRES}'_oro_data.tile2.nc","'
+F=${F}'C'${SRC_ATMRES}.mx${SRC_OCNRES}'_oro_data.tile3.nc","'
+F=${F}'C'${SRC_ATMRES}.mx${SRC_OCNRES}'_oro_data.tile4.nc","'
+F=${F}'C'${SRC_ATMRES}.mx${SRC_OCNRES}'_oro_data.tile5.nc","'
+F=${F}'C'${SRC_ATMRES}.mx${SRC_OCNRES}'_oro_data.tile6.nc'
+export OROG_FILES_INPUT_GRID=${F}
+
+F=""
+F=${F}${DTG_TEXT}'.fv_core.res.tile1.nc","'
+F=${F}${DTG_TEXT}'.fv_core.res.tile2.nc","'
+F=${F}${DTG_TEXT}'.fv_core.res.tile3.nc","'
+F=${F}${DTG_TEXT}'.fv_core.res.tile4.nc","'
+F=${F}${DTG_TEXT}'.fv_core.res.tile5.nc","'
+F=${F}${DTG_TEXT}'.fv_core.res.tile6.nc,"'
+F=${F}${DTG_TEXT}'.fv_core.res.nc'
+export ATM_CORE_FILES_INPUT=${F}
+
+F=""
+F=${F}${DTG_TEXT}'.fv_tracer.res.tile1.nc","'
+F=${F}${DTG_TEXT}'.fv_tracer.res.tile2.nc","'
+F=${F}${DTG_TEXT}'.fv_tracer.res.tile3.nc","'
+F=${F}${DTG_TEXT}'.fv_tracer.res.tile4.nc","'
+F=${F}${DTG_TEXT}'.fv_tracer.res.tile5.nc","'
+F=${F}${DTG_TEXT}'.fv_tracer.res.tile6.nc'
+export ATM_TRACER_FILES_INPUT=${F}
+
+F=""
+F=${F}${DTG_TEXT}'.sfc_data.tile1.nc","'
+F=${F}${DTG_TEXT}'.sfc_data.tile2.nc","'
+F=${F}${DTG_TEXT}'.sfc_data.tile3.nc","'
+F=${F}${DTG_TEXT}'.sfc_data.tile4.nc","'
+F=${F}${DTG_TEXT}'.sfc_data.tile5.nc","'
+F=${F}${DTG_TEXT}'.sfc_data.tile6.nc'
+export SFC_FILES_INPUT=${F}
+
+F=""
+F=${F}''${ATMRES}.${OCNRES}'_oro_data.tile1.nc","'
+F=${F}''${ATMRES}.${OCNRES}'_oro_data.tile2.nc","'
+F=${F}''${ATMRES}.${OCNRES}'_oro_data.tile3.nc","'
+F=${F}''${ATMRES}.${OCNRES}'_oro_data.tile4.nc","'
+F=${F}''${ATMRES}.${OCNRES}'_oro_data.tile5.nc","'
+F=${F}''${ATMRES}.${OCNRES}'_oro_data.tile6.nc'
+export OROG_FILES_TARGET_GRID=${F}
+
+export APRUN="srun -n 6"
+########################
+# modules
+module purge
+module use ${HOMEufs}/modulefiles
+module load build.hera.intel
+
+#ln -s ${HOMEufs}/exec/chgres_cube ${dir}
+#SCRIPT=${HOMEufs}/ush/chgres_cube.sh
+#bash ${SCRIPT}
+#exit 1
+
+############
+ORO_NAME="${ATMRES}.mx${OCNRES}_oro_data"
+cat << EOF > fort.41
+
+&config
+ fix_dir_target_grid="${OROG_DIR_TARGET_GRID}/sfc"
+ mosaic_file_target_grid="${MOSAIC_FILE_TARGET_GRID}"
+ orog_dir_target_grid="${OROG_DIR_TARGET_GRID}"
+ orog_files_target_grid="${OROG_FILES_TARGET_GRID}"
+ mosaic_file_input_grid="${MOSAIC_FILE_INPUT_GRID}"
+ orog_dir_input_grid="${OROG_DIR_INPUT_GRID}"
+ orog_files_input_grid="${OROG_FILES_INPUT_GRID}"
+ data_dir_input_grid="${COMIN}"
+ atm_core_files_input_grid="${ATM_CORE_FILES_INPUT}"
+ atm_tracer_files_input_grid="${ATM_TRACER_FILES_INPUT_GRID}"
+ vcoord_file_target_grid="${VCOORD_FILE}"
+ sfc_files_input_grid="${SFC_FILES_INPUT_GRID}"
+ cycle_mon=${dtg:6:2}
+ cycle_day=${dtg:8:2}
+ cycle_hour=${dtg:10:2}
+ convert_atm=.true.
+ convert_sfc=.true.
+ convert_nst=.true.
+ tracers="sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"
+ tracers_input="sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"
+/
+EOF
+${APRUN} ${HOMEufs}/exec/chgres_cube
+exit 1
+
+#if [ $rc != 0 ]; then
+#  exit $rc
+#fi
+#&config
+# fix_dir_target_grid="/scratch2/NCEPDEV/stmp3/Neil.Barton/TEST/UFS_UTILS/util/gdas_init/../../fix/orog/C192/sfc"
+# mosaic_file_target_grid="/scratch2/NCEPDEV/stmp3/Neil.Barton/TEST/UFS_UTILS/util/gdas_init/../../fix/orog/C192/C192_mosaic.nc"
+# orog_dir_target_grid="/scratch2/NCEPDEV/stmp3/Neil.Barton/TEST/UFS_UTILS/util/gdas_init/../../fix/orog/C192"
+# orog_files_target_grid="C192.mx050_oro_data.tile1.nc","C192.mx050_oro_data.tile2.nc","C192.mx050_oro_data.tile3.nc","C192.mx050_oro_data.tile4.nc","C192.mx050_oro_data.tile5.nc","C192.mx050_oro_data.tile6.nc"
+# mosaic_file_input_grid="/scratch1/NCEPDEV/global/glopara/fix/orog/20230615/C768/C768_mosaic.nc"
+# orog_dir_input_grid="/scratch1/NCEPDEV/global/glopara/fix/orog/20230615/C768"
+# orog_files_input_grid="C768_oro_data.tile1.nc","C768_oro_data.tile2.nc","C768_oro_data.tile3.nc","C768_oro_data.tile4.nc","C768_oro_data.tile5.nc","C768_oro_data.tile6.nc"
+# data_dir_input_grid="/scratch2/NCEPDEV/stmp3/Neil.Barton/TEST/utils_test/gdas.20200920/06/RESTART"
+# atm_core_files_input_grid="20200920.120000.fv_core.res.tile1.nc","20200920.120000.fv_core.res.tile2.nc","20200920.120000.fv_core.res.tile3.nc","20200920.120000.fv_core.res.tile4.nc","20200920.120000.fv_core.res.tile5.nc","20200920.120000.fv_core.res.tile6.nc","20200920.120000.fv_core.res.nc"
+# atm_tracer_files_input_grid="20200920.120000.fv_tracer.res.tile1.nc","20200920.120000.fv_tracer.res.tile2.nc","20200920.120000.fv_tracer.res.tile3.nc","20200920.120000.fv_tracer.res.tile4.nc","20200920.120000.fv_tracer.res.tile5.nc","20200920.120000.fv_tracer.res.tile6.nc"
+# vcoord_file_target_grid="/scratch2/NCEPDEV/stmp3/Neil.Barton/TEST/UFS_UTILS/util/gdas_init/../../fix/am/global_hyblev.l65.txt"
+# sfc_files_input_grid="20200920.120000.sfc_data.tile1.nc","20200920.120000.sfc_data.tile2.nc","20200920.120000.sfc_data.tile3.nc","20200920.120000.sfc_data.tile4.nc","20200920.120000.sfc_data.tile5.nc","20200920.120000.sfc_data.tile6.nc"
+# cycle_mon=09
+# cycle_day=20
+# cycle_hour=12
+# convert_atm=.true.
+# convert_sfc=.true.
+# convert_nst=.true.
+# tracers="sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"
+# tracers_input="sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"
+#/
+

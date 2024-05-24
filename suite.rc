@@ -48,7 +48,7 @@
 [[[R1]]]
     graph = """
         {% if ATMRES != 'C384' or OCNRES != 'mx025' %} 
-        chgres_compile
+        chgres_compile => CHGRES
         {% endif %}
     """
 
@@ -151,6 +151,8 @@ rm -r ${CYLC_TASK_WORK_DIR}
         [[[job]]]
             batch system = background
     [[CHGRES]]
+        [[[directives]]]
+            --ntasks = 6
     [[chgres<chgres_models>]]
         inherit = CHGRES
         script = """

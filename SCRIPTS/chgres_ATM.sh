@@ -1,19 +1,18 @@
 #!/bin/sh
 set -xu
 dtg=${1}
-compiler=gnu
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${IC_DIR}/${dtg}/mem000/ocean
+compiler=${chgres_compiler}
+dir=${IC_DIR}/${dtg}/mem000/atmos
 export DATA=${dir}
 SRC_ATMRES="C384"
 SRC_OCNRES="mx025"
-export APRUN="srun -n 6"
 
 cd ${DATA}
 ########################
 # chgres_cube.sh options
-export HOMEufs=${SCRIPT_DIR}/UFS_UTILS
+export HOMEufs=${CODE_DIR}/UFS_UTILS
 export INPUT_TYPE="restart"
 export COMIN=${dir} 
 export CDATE=${dtg:0:8}03
@@ -76,6 +75,8 @@ module purge
 module use ${HOMEufs}/modulefiles
 module load build.hera.${compiler}
 
+mkdir -p ${COMIN}/CHGRES
+cd ${COMIN}/CHGRES
 ############
 cat << EOF > fort.41
 
@@ -110,5 +111,16 @@ if (( ${?} > 0 )); then
     echo 'chgres_ATM failed'
     exit 1
 fi
+
+# move files
+for n in $(seq 1 6); do
+    mv out.atm.tile${n}.nc ${dir}/gfs_data.tile${n}.nc
+    mv out.sfc.tile${n}.nc ${dir}/sfc_data.tile${n}.nc
+done
+mv gfs_ctrl.nc ${dir}/gfs_ctrl.nc
+
 echo 'NPB check files and move data'
-exit 
+exit 1
+cd ${dir}
+rm -r CHGRES
+rm ${DTG_TEXT}*nc

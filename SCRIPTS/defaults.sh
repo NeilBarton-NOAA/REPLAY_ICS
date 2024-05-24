@@ -40,3 +40,9 @@ hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
 ########################
 # CODE Directory
 CODE_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/REPLAY
+
+########################
+# compiler used for chgres
+export chgres_compiler=gnu
+export APRUN="srun -n 6"
+

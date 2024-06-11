@@ -20,6 +20,9 @@ for i in $(seq 1 ${NENS}); do
     for f in ${atm_files}; do
         ln -sf ../../mem000/${model}/${DTG_TEXT}.${f}*nc .
     done
+    if [[ ${ATMRES} == 'C384' ]]; then
+        ln -sf ../../mem000/${model}/${DTG_TEXT}.coupler.res .
+    fi
     # ocean files
     model=ocean && dir=${out_dir}/${model} 
     mkdir -p ${dir} && cd ${dir}
@@ -46,6 +49,3 @@ REPLAY ICS are valid at 03Z
 The file folders are at 00Z to run in g-w
 Files Created on ${current_time}
 EOF
-
-
-

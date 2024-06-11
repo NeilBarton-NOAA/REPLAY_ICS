@@ -1,5 +1,6 @@
 #!/bin/bash
 set -u
+exit 1
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh

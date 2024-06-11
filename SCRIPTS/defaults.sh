@@ -16,6 +16,9 @@ DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
 ############
 # top IC directory
 IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
+if [[ ${C96_REPLAY} == "True" ]]; then
+    IC_DIR=${IC_DIR}_C96REPLAY
+fi
 mkdir -p ${IC_DIR}
 
 ############
@@ -23,19 +26,7 @@ mkdir -p ${IC_DIR}
 # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
 aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
 
-############
-# Ocean perturbation files:
-hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/2year/Philip.Pegion/ocean_ensemble_perts/C384
 
-#1 degree 
-#/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/oras5_ocn/ensemble_perts/mx100/
-#There is a tar file for the 1st of each month from Jan 1993 through Dec 2023.  
-#I also have the May 1 and Nov 1 perturbations on AWS at 
-aws_ocn_increment_dir="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/ocn_ice/mx100/ens_perts"
-
-########################
-# Atmosphere perturbation files:
-hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
 
 ########################
 # CODE Directory

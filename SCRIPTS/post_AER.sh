@@ -20,8 +20,14 @@ fi
 cd ${dir}
 https=https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/
 MN=400
+if [[ ${dtg:0:4} == "1994" ]]; then
+ MN=200
+fi
 if [[ ${dtg:0:4} == "2008" ]]; then
  MN=300
+fi
+if (( ${dtg} > 2021060200 )) && (( ${dtg} < 2021100700 )); then
+    MN=401
 fi
 merra_file=MERRA2_${MN}.inst3_3d_aer_Nv.${dtg:0:8}.nc4
 # first try to download from HPSS

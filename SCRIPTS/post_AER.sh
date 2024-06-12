@@ -23,7 +23,7 @@ MN=400
 if (( ${dtg} < 2001010100 )); then
  MN=200
 fi
-if (( ${dtg:0:4} > 2000123100 )) && (( ${dtg:0:4} < 2012010100 )); then
+if (( ${dtg} > 2000123100 )) && (( ${dtg} < 2012010100 )); then
  MN=300
 fi
 if (( ${dtg} > 2021060200 )) && (( ${dtg} < 2021100700 )); then
@@ -43,7 +43,9 @@ if [ ! -f ${merra_file} ]; then
 fi
 if [ ! -f ${merra_file} ]; then
     echo "FAILURE in downloading MERRA file: ${merra_file}"
-    echo "  check comments in post_AER.sh script"
+    echo "  https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/${merra_file}"
+    echo "  or "
+    echo "  htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/MERRA2_400.inst_3d_aero_Nv.${dtg:0:4}.nc4"
     exit 1
 fi
 

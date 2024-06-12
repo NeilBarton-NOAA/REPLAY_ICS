@@ -12,7 +12,12 @@ echo "DOWNLOADING ATM INCREMENT data to ${inc_dir}"
 # Atmosphere perturbation files on hpss
 if [[ ${ATMRES} == "C96" ]]; then
     hpss_atm_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/era5/C96_perts
-    file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_0${dtg:3:5}.tar
+    if [[ ${dtg:3:1} == 0 ]]; then
+        EY=1
+    else
+        EY=0
+    fi
+    file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:5}.tar
     NENS=10
 else
     hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
@@ -43,13 +48,13 @@ for n in $( seq 1 ${NENS}); do
     fi
     inc_file=${dir}/${DTG_TEXT}.fv3_perturbation.nc
     if [[ ${ATMRES} == "C96" ]]; then
-        hpss_file=${inc_dir}/0${dtg:3:5}/${ATMRES}_era5anl_mem${mem}_0${dtg:3:5}.nc 
+        hpss_file=${inc_dir}/${EY}${dtg:3:5}/${ATMRES}_era5anl_mem${mem}_${EY}${dtg:3:5}.nc 
     else
         hpss_file=${inc_dir}/${ATMRES}_era5anl_inc${i}_${dtg:0:8}03.nc 
     fi
     mv ${hpss_file} ${inc_file}
     if (( ${?} > 0 )); then
-        echo 'ERROR in coping perturbation'
+        echo 'ERROR in copying perturbation'
         echo "  mv ${hpss_file} ${inc_file}"
         exit 1
     fi

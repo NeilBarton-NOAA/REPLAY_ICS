@@ -55,10 +55,13 @@
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    max active cycle points = 8
+    max active cycle points = 12
     [[queues]]
         [[[default]]]
             limit = 42
+        [[[AER_GRAB]]]
+            limit = 5
+            members = post_AER
     [[dependencies]]
 
 # Run once a week

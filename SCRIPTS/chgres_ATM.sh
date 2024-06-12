@@ -22,6 +22,8 @@ export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_m
 export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
 export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
 export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
+export TRACERS_TARGET='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
+export TRACERS_INPUT=${TRACERS_TARGET}
 
 F=""
 F=${F}${SRC_ATMRES}.${SRC_OCNRES}'_oro_data.tile1.nc","'
@@ -99,8 +101,8 @@ cat << EOF > fort.41
  convert_atm=.true.
  convert_sfc=.true.
  convert_nst=.true.
- tracers="sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"
- tracers_input="sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"
+ tracers=${TRACERS_TARGET}
+ tracers_input=${TRACERS_INPUT}
 /
 EOF
 

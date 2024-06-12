@@ -7,7 +7,7 @@
 # define suite
 #   hopefully user does not have to edit anything below here
 {% set ICP = '19940101' %}
-{% set FCP = '20230101' %}
+{% set FCP = '20240101' %}
 {% set CHGRES_MODELS = "ATM, OCN, ICE" %}
 {% set ATMRES = "C384" %}
 {% set OCNRES = "mx025" %}
@@ -67,17 +67,19 @@
 # Run once a week
 #[[[P1W]]]
 # Run on Thursdays
-[[[W-4T00]]]
+#[[[W-4T00]]]
 # Run on Mondays and Thursdays
 #[[[W-1T00,W-4T00]]]
 # Run on the First of each month
-[[[01T00]]]
+#[[[01T00]]]
+# Specifc Dates
+[[[R1/20151101T00]]]
+#[[[R1/19971101T00,R1/20151101T00,R1/20201101T00,R1/20230123T00]]]
     graph = """
         GET
         
         {% if C96_REPLAY %} 
         get_ALL        => post_ICE & post_AER & post_MED
-        get_WAV
         {% else %}
         get_ATM        => post_AER 
         get_ICE        => post_ICE

@@ -17,7 +17,7 @@ if [[ ${ATMRES} == "C96" ]]; then
     else
         EY=0
     fi
-    file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:5}.tar
+    file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:3}01.tar
     NENS=10
 else
     hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
@@ -48,7 +48,7 @@ for n in $( seq 1 ${NENS}); do
     fi
     inc_file=${dir}/${DTG_TEXT}.fv3_perturbation.nc
     if [[ ${ATMRES} == "C96" ]]; then
-        hpss_file=${inc_dir}/${EY}${dtg:3:5}/${ATMRES}_era5anl_mem${mem}_${EY}${dtg:3:5}.nc 
+        hpss_file=${inc_dir}/${EY}${dtg:3:3}01/${ATMRES}_era5anl_mem${mem}_${EY}${dtg:3:3}01.nc 
     else
         hpss_file=${inc_dir}/${ATMRES}_era5anl_inc${i}_${dtg:0:8}03.nc 
     fi

@@ -11,7 +11,7 @@ echo "DOWNLOADING OCN INCREMENT data to ${inc_dir}"
 # Ocean perturbation files on hpss
 if [[ ${OCNRES} == "mx100" ]]; then
     hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/oras5_ocn/ensemble_perts/mx100/
-    file_name=${hpss_ocn_increment_dir}/ocn_perts_for_SFS_mx100_${dtg}.tar
+    file_name=${hpss_ocn_increment_dir}/ocn_perts_for_SFS_mx100_${dtg:0:6}0100.tar
     LN=10
     #aws_ocn_increment_dir="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/ocn_ice/mx100/ens_perts"
 elif [[ ${OCNRES} == "mx025" ]]; then
@@ -49,11 +49,16 @@ for n in $( seq 1 ${LN} ); do
     mem=$(printf "%03d" ${n})
     dir=${IC_DIR}/${dtg}/mem${mem}/ocean
     mkdir -p ${dir}
+    if [[ ${OCNRES} == "mx100" ]]; then
+        pert_file=${inc_dir}/${dtg:0:6}0100/mem${mem}_pert.nc
+    else
+        pert_file=${inc_dir}/${dtg}/mem${mem}_pert.nc
+    fi
     inc_file=${dir}/${DTG_TEXT}.mom6_perturbation.nc
-    mv ${inc_dir}/${dtg}/mem${mem}_pert.nc ${inc_file}
+    mv ${pert_file} ${inc_file}
     if (( ${?} > 0 )); then
         echo 'ERROR in copying perturbation'
-        echo "  mv ${inc_dir}/${dtg}/mem${mem}_pert.nc ${inc_file}"
+        echo "  mv ${pert_file} ${inc_file}"
         exit 1
     fi
 done

@@ -9,6 +9,9 @@ if [[ ${dow} == "Thursday" ]] || [[ ${dow} == "Monday" ]]; then
 else
     NENS=5
 fi
+if [[ ${ATMRES} != "C384" ]]; then
+    NENS=10
+fi
 ############
 # time stamp for files
 DTG_TEXT=${dtg:0:8}.030000 # restarts valid at 

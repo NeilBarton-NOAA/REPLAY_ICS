@@ -18,7 +18,6 @@ if [[ ${ATMRES} == "C96" ]]; then
         EY=0
     fi
     file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:3}01.tar
-    NENS=10
 else
     hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
     if [[ ${NENS} == 10 ]]; then

@@ -18,6 +18,7 @@ cd ${RESTART_DIR}
 
 # atmos file
 IC_DIR=${dir}/atmos && mkdir -p ${IC_DIR}
+atmos_files='ca_data* fv_core* fv_srf_wnd* fv_tracer* phy_data* sfc_data*'
 files=$( ls ${atmos_files} )
 for f in ${files}; do
     cp ${f} ${IC_DIR}/${DTG_TEXT}.${f}
@@ -46,5 +47,5 @@ cp ${f} ${IC_DIR}/${DTG_TEXT}.ufs.cpld.cpl.r.nc
 # wave file from outside of tar
 #   wave_file='restart.ww3'
 
-# remove 
+# remove
 rm -r ${dir}/${dtg:0:8}06

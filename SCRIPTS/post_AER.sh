@@ -52,7 +52,11 @@ fi
 ###########
 # add data to fv_core files
 for i in {1..6}; do 
-    ${dir_aer_code}/merra2_to_ufs_cubesphere_restarts.py -m ${merra_file} -c ${DTG_TEXT}.fv_core.res.nc -t ${DTG_TEXT}.fv_tracer.res.tile${i}.nc -r C384 -cyc 1
+    ${dir_aer_code}/merra2_to_ufs_cubesphere_restarts.py -m ${merra_file} -c ${DTG_TEXT}.fv_core.res.nc -t ${DTG_TEXT}.fv_tracer.res.tile${i}.nc -r ${ATMRES} -cyc 1
+    if (( ${?} > 0 )); then
+        echo "merra2_to_ufs_cubsphere_restarts.py failed"
+        exit 1
+    fi
 done
 
 ############

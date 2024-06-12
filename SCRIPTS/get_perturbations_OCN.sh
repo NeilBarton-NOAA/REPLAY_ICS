@@ -9,10 +9,10 @@ echo "DOWNLOADING OCN INCREMENT data to ${inc_dir}"
 
 ############
 # Ocean perturbation files on hpss
+LN=${NENS}
 if [[ ${OCNRES} == "mx100" ]]; then
     hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/oras5_ocn/ensemble_perts/mx100/
     file_name=${hpss_ocn_increment_dir}/ocn_perts_for_SFS_mx100_${dtg:0:6}0100.tar
-    LN=10
     #aws_ocn_increment_dir="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/ocn_ice/mx100/ens_perts"
 elif [[ ${OCNRES} == "mx025" ]]; then
     hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/2year/Philip.Pegion/ocean_ensemble_perts/C384
@@ -22,7 +22,6 @@ elif [[ ${OCNRES} == "mx025" ]]; then
     fi
     if [[ ${NENS} == 10 ]]; then
         file_name=${hpss_ocn_increment_dir}/ocn_perts_C384_${f_dtg}.tar
-        LN=10
     else
         file_name=${hpss_ocn_increment_dir}/ocn_perts_4mem_C384_${f_dtg}.tar
         LN=4

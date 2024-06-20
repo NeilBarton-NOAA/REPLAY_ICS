@@ -19,7 +19,7 @@ DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
 ############
 # top IC directory
 IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
-if [[ ${C96_REPLAY} == "True" ]]; then
+if [[ "${C96_REPLAY:-False}" == "True" ]]; then
     IC_DIR=${IC_DIR}_C96REPLAY
 fi
 mkdir -p ${IC_DIR}
@@ -37,6 +37,6 @@ CODE_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/REPLAY
 
 ########################
 # compiler used for chgres
-export chgres_compiler=gnu
+export chgres_compiler=intel
 export APRUN="srun -n 6"
 

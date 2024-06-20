@@ -13,3 +13,5 @@ for i in $(seq 1 3); do
     WGET_AWS ${aws_path}/MOM.res_${i}.nc ${DTG_TEXT}.MOM.res_${i}.nc
 done
 
+FIND_EMPTY_FILES ${PWD}
+

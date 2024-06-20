@@ -25,6 +25,8 @@ for f in ${files}; do
     WGET_AWS ${aws_path}/${file_in} ${file_out} 
 done
 
+FIND_EMPTY_FILES ${PWD}
+
 if [[ ${ATMRES} == "C384" ]]; then
     touch ${DTG_TEXT}.coupler.res
 fi

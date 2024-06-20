@@ -8,13 +8,22 @@
 #   hopefully user does not have to edit anything below here
 {% set ICP = '19940101' %}
 {% set FCP = '20240101' %}
-{% set CHGRES_MODELS = "ATM, OCN, ICE" %}
-{% set ATMRES = "C384" %}
-{% set OCNRES = "mx025" %}
-{% set C96_REPLAY = True %}
+{% set ATMRES = "C96" %}
+{% set OCNRES = "mx100" %}
+{% set C96_REPLAY = False %}
+{% set DATES = "01T00" %}
+
+####################################
+# DATES option
+# P1W                   : Run once a week Start on {{ ICP }}
+# W-4T00                : Run on Thursdays
+# W-1T00,W-4T00         : Run on Mondays and Thursdays
+# 01T00                 : Run on the First of each month
+# R1/20151101T00,R1/... : Run these Specifc Dates
 
 ####################################
 # Options based on the above
+{% set CHGRES_MODELS = "ATM, OCN, ICE" %}
 {% if C96_REPLAY %}
 {% set ATMRES = "C96" %}
 {% set OCNRES = "mx100" %}
@@ -32,7 +41,7 @@
 
 {% else %}
 # C96 or C192 from changres 
-{% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
+{% set MODELS = "ATM, OCN, ICE " %}
 {% set POST_MODELS = "AER, ICE" %}
 {% endif %} #if C96_REPLAY
 {% endif %} #if C384
@@ -55,26 +64,19 @@
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    max active cycle points = 12
+    max active cycle points = 25
     [[queues]]
         [[[default]]]
-            limit = 42
+            limit = 22
         [[[AER_GRAB]]]
             limit = 5
             members = post_AER
+        [[[BACKGROUND]]]
+            limit = 8
+            members = GET, GET_PERTURBATIONS
     [[dependencies]]
 
-# Run once a week
-#[[[P1W]]]
-# Run on Thursdays
-#[[[W-4T00]]]
-# Run on Mondays and Thursdays
-#[[[W-1T00,W-4T00]]]
-# Run on the First of each month
-#[[[01T00]]]
-# Specifc Dates
-[[[R1/20151101T00]]]
-#[[[R1/19971101T00,R1/20151101T00,R1/20201101T00,R1/20230123T00]]]
+[[[{{ DATES }}]]]
     graph = """
         GET
         

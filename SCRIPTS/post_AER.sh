@@ -26,7 +26,10 @@ fi
 if (( ${dtg} > 2000123100 )) && (( ${dtg} < 2011010100 )); then
  MN=300
 fi
-if (( ${dtg} > 2021060200 )) && (( ${dtg} < 2021100700 )); then
+if (( ${dtg} > 2020080100 )) && (( ${dtg} < 2020100100 )); then
+ MN=401
+fi
+if (( ${dtg} >= 2021060100 )) && (( ${dtg} < 2021100100 )); then
  MN=401
 fi
 merra_file=MERRA2_${MN}.inst3_3d_aer_Nv.${dtg:0:8}.nc4

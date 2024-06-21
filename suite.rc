@@ -7,7 +7,7 @@
 # define suite
 #   hopefully user does not have to edit anything below here
 {% set ICP = '19940101' %}
-{% set FCP = '20240101' %}
+{% set FCP = '20231231' %}
 {% set ATMRES = "C96" %}
 {% set OCNRES = "mx100" %}
 {% set C96_REPLAY = False %}

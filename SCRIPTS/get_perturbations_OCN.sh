@@ -37,7 +37,7 @@ if (( ${?} > 0 )); then
     echo '  file_name:', ${file_name}
     exit 1
 fi
-if [[ ${dtg:0:4} == 2021 ]]; then
+if [[ ${dtg:0:4} == 2021 ]] && [[ ${OCNRES} == "mx025" ]]; then
     mv ${f_dtg} ${dtg}
 fi
 

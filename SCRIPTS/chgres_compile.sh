@@ -6,8 +6,8 @@ dtg=2017100100 # dummy variable
 ATMRES=DUMMY
 OCNRES=DUMMY
 source ${SCRIPT_DIR}/defaults.sh
-CODE=https://github.com/DeniseWorthen/UFS_UTILS.git
-HASH=feature/ocnprep
+CODE=https://github.com/ufs-community/UFS_UTILS.git
+HASH=develop
 export compiler=${chgres_compiler}
 export target=hera
 mkdir -p ${CODE_DIR} && cd ${CODE_DIR}
@@ -15,7 +15,6 @@ mkdir -p ${CODE_DIR} && cd ${CODE_DIR}
 git clone ${CODE} 
 cd ${CODE_DIR}/UFS_UTILS
 git checkout ${HASH}
-#git submodule update --init --recursive
 
 # fix files
 cd ${CODE_DIR}/UFS_UTILS/fix

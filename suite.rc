@@ -11,15 +11,17 @@
 {% set ATMRES = "C96" %}
 {% set OCNRES = "mx100" %}
 {% set C96_REPLAY = False %}
-{% set DATES = "01T00" %}
+{% set DATES = "19940501T0000Z/P1Y,19941101T0000Z/P1Y" %}
 
 ####################################
 # DATES option
-# P1W                   : Run once a week Start on {{ ICP }}
-# W-4T00                : Run on Thursdays
-# W-1T00,W-4T00         : Run on Mondays and Thursdays
-# 01T00                 : Run on the First of each month
-# R1/20151101T00,R1/... : Run these Specifc Dates
+# P1W                                   : Run once a week Start on {{ ICP }}
+# P1W                                   : Run once a week Start on {{ ICP }}
+# W-4T00                                : Run on Thursdays
+# W-1T00,W-4T00                         : Run on Mondays and Thursdays
+# 01T00                                 : Run on the First of each month
+# R1/20151101T00,R1/...                 : Run these Specifc Dates
+# 19940501T0000Z/P1Y,19941101T0000Z/P1Y : Run 1st of May and November (SFS baseline start dates)
 
 ####################################
 # Options based on the above
@@ -42,7 +44,7 @@
 {% else %}
 # C96 or C192 from changres 
 {% set MODELS = "ATM, OCN, ICE " %}
-{% set POST_MODELS = "AER, ICE" %}
+{% set POST_MODELS = "AER, ICE, SFC" %}
 {% endif %} #if C96_REPLAY
 {% endif %} #if C384
 
@@ -64,7 +66,7 @@
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    max active cycle points = 25
+    max active cycle points = 2
     [[queues]]
         [[[default]]]
             limit = 22
@@ -91,7 +93,8 @@
         
         {% else %}
         post_AER        => chgres_ATM
-        chgres_ATM      => link_member_dirs
+        chgres_ATM      => post_SFC
+        post_SFC        => link_member_dirs
         
         {% endif %}
         

@@ -17,7 +17,7 @@ export INPUT_TYPE="restart"
 export COMIN=${dir} 
 export CDATE=${dtg:0:8}03
 export ocn=${OCNRES:2:3}
-export VCOORD_FILE="${HOMEufs}/fix/am/global_hyblev.l128.txt"
+export VCOORD_FILE="${HOMEufs}/fix/am/global_hyblev.l128C.txt"
 export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
 export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
 export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
@@ -83,6 +83,7 @@ cd ${COMIN}/CHGRES
 cat << EOF > fort.41
 
 &config
+ input_type="restart"
  fix_dir_target_grid="${OROG_DIR_TARGET_GRID}/sfc"
  mosaic_file_target_grid="${MOSAIC_FILE_TARGET_GRID}"
  orog_dir_target_grid="${OROG_DIR_TARGET_GRID}"
@@ -108,7 +109,7 @@ EOF
 
 #SCRIPT=${HOMEufs}/ush/chgres_cube.sh
 #bash ${SCRIPT}
-${APRUN} ${HOMEufs}/exec/chgres_cube
+${APRUN} -n 6 ${HOMEufs}/exec/chgres_cube
 if (( ${?} > 0 )); then
     echo 'chgres_ATM failed'
     exit 1

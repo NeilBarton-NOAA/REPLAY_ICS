@@ -29,8 +29,6 @@ mkdir -p ${IC_DIR}
 # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
 aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
 
-
-
 ########################
 # CODE Directory
 CODE_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/REPLAY
@@ -38,5 +36,5 @@ CODE_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/REPLAY
 ########################
 # compiler used for chgres
 export chgres_compiler=intel
-export APRUN="srun -n 6"
+export APRUN="srun"
 

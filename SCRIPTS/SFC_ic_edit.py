@@ -81,8 +81,9 @@ ds_rs.assign_attrs({'File Edited' : 'canopy values reset to 0.5'})
 
 for tile in np.arange(1,ntiles+1):
     ds_out=ds_rs.isel(tile=tile-1)
-    os.rename(data_dir + '/sfc_data.tile' + str(tile) + '.nc', data_dir + '/ORIG_sfc_data.tile' + str(tile) + '.nc')
     f = data_dir + '/sfc_data.tile' + str(tile) + '.nc'
+    os.remove(f)
+    #os.rename(f, data_dir + '/ORIG_sfc_data.tile' + str(tile) + '.nc')
     print("saving: ", f)
     ds_out.to_netcdf(f)
     ds_out.close()

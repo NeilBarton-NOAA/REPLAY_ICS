@@ -56,7 +56,7 @@ if [ ! -f ${merra_file} ]; then
     echo "FAILURE in downloading MERRA file: ${merra_file}"
     echo "  https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/${merra_file}"
     echo "  or "
-    echo "  htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/MERRA2_400.inst_3d_aero_Nv.${dtg:0:4}.nc4"
+    echo "  htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/${merra_file}"
     exit 1
 fi
 
@@ -68,6 +68,7 @@ else
     ATMRES_POSTAER=C384
 fi
 for i in {1..6}; do 
+    echo "Adding aerosols to ${DTG_TEXT}.fv_tracer.res.tile${i}.nc"
     ${dir_aer_code}/merra2_to_ufs_cubesphere_restarts.py -m ${merra_file} -c ${DTG_TEXT}.fv_core.res.nc -t ${DTG_TEXT}.fv_tracer.res.tile${i}.nc -r ${ATMRES_POSTAER} -cyc 1
     if (( ${?} > 0 )); then
         echo "merra2_to_ufs_cubsphere_restarts.py failed"

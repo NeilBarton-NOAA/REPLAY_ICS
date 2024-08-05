@@ -50,7 +50,8 @@ fi
 if [[ ! -f ${WORKDIR}/ice.mx100.nc ]]; then
     echo "FATAL: ${WORKDIR}/ice.mx100.nc not created"
 fi
-mv ${dir}/${DTG_TEXT}.cice_model.res.nc ${dir}/${DTG_TEXT}.cice_model.res_mx025.nc
+#mv ${dir}/${DTG_TEXT}.cice_model.res.nc ${dir}/${DTG_TEXT}.cice_model.res_mx025.nc
+rm ${dir}/${DTG_TEXT}.cice_model.res.nc
 mv ${WORKDIR}/ice.mx100.nc ${dir}/${DTG_TEXT}.cice_model.res.nc
 rm -rf ${WORKDIR}
 

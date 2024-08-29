@@ -14,10 +14,13 @@ for f in ${files}; do
     for tile in $(seq 1 6); do
         file_in=${f}.tile${tile}.nc 
         file_out=${DTG_TEXT}.${f}.tile${tile}.nc
-        WGET_AWS ${aws_path}/${file_in} ${file_out} 
-    done
+        if [[ ${f} == "sfc_data" ]]; then
+            WGET_AWS ${aws_path}/hr3_land/${file_in} ${file_out} 
+        else
+            WGET_AWS ${aws_path}/${file_in} ${file_out} 
+        fi
+   done
 done
-
 files='ca_data fv_core.res'
 for f in ${files}; do
     file_in=${f}.nc

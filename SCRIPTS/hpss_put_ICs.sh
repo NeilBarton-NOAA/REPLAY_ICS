@@ -13,4 +13,7 @@ if (( ${?} > 0 )); then
     echo 'ERROR in htar'
     exit 1
 fi
-
+if [[ ${ATMRES} == "C384" ]]; then
+    echo "Removing C384 data from hera"
+    rm -r ${dtg}
+fi

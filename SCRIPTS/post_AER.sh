@@ -53,7 +53,7 @@ if [ ! -f ${merra_file} ]; then #3rd try, download from MERRA Server
     hsi -q put ${merra_file} : ${HSI_DIR}/${merra_file} 2>/dev/null
 fi
 if [ ! -f ${merra_file} ]; then
-    echo "FAILURE in downloading MERRA file: ${merra_file}"
+    echo "FATAL in downloading MERRA file: ${merra_file}"
     echo "  https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/${merra_file}"
     echo "  or "
     echo "  htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/${merra_file}"

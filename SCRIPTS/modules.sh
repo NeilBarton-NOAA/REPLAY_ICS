@@ -4,7 +4,6 @@ set +x
 module purge
 module use -a $HOME/TOOLS/modulefiles
 module load conda
-module load cylc
 
 #module use -a /contrib/anaconda/modulefiles
 module load hpss

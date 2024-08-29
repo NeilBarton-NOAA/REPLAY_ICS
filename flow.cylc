@@ -1,22 +1,18 @@
 #!jinja2
-########################
-# Items that may need changed
-{% set MAIL_ADDRESS = "neil.barton@noaa.gov" %}
-
 ####################################
 # define suite
 #   hopefully user does not have to edit anything below here
 {% set ICP = '19940101' %}
 {% set FCP = '20231231' %}
-{% set ATMRES = "C96" %}
-{% set OCNRES = "mx100" %}
+{% set ATMRES = "C384" %}
+{% set OCNRES = "mx025" %}
 {% set C96_REPLAY = False %}
-{% set DATES = "19940501T0000Z/P1Y,19941101T0000Z/P1Y" %}
+{% set DATES = "P1D" %}
 
 ####################################
 # DATES option
 # P1W                                   : Run once a week Start on {{ ICP }}
-# P1W                                   : Run once a week Start on {{ ICP }}
+# P1D                                   : Run once a day starting on {{ ICP }}
 # W-4T00                                : Run on Thursdays
 # W-1T00,W-4T00                         : Run on Mondays and Thursdays
 # 01T00                                 : Run on the First of each month
@@ -53,34 +49,35 @@
 [meta]
     title = "grab, process, organize, and store replay ICs"
 
-[cylc]
+[scheduler]
     UTC mode = True
-    [[environment]]
-        MAIL_ADDRESS = {{ MAIL_ADDRESS }}
-    [[parameters]]
-        models = {{ MODELS }}
-        post_models = {{ POST_MODELS }}
-        perturbation_models = {{ PERTURBATION_MODELS }}
-        chgres_models = {{ CHGRES_MODELS }}
+    [[events]]
+        mail events = failed, stall, abort, submission failed
+    [[mail]]
+        to = Neil.Barton@noaa.gov
+    
+[task parameters]
+    models = {{ MODELS }}
+    post_models = {{ POST_MODELS }}
+    perturbation_models = {{ PERTURBATION_MODELS }}
+    chgres_models = {{ CHGRES_MODELS }}
 
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    max active cycle points = 12
+    runahead limit = P10 
     [[queues]]
         [[[default]]]
-            limit = 22
+            limit = 12
         [[[AER_GRAB]]]
-            limit = 5
+            limit = 4
             members = post_AER
         [[[BACKGROUND]]]
             limit = 8
             members = GET, GET_PERTURBATIONS
-    [[dependencies]]
-
-[[[{{ DATES }}]]]
-    graph = """
-        GET
+    [[graph]]
+        {{ DATES }} = """
+         GET
         
         {% if C96_REPLAY %} 
         get_ALL        => post_ICE & post_AER & post_MED
@@ -88,7 +85,7 @@
         get_ATM        => post_AER 
         get_ICE        => post_ICE
         
-        {% if ATMRES == 'C384' %} 
+        {% if ATMRES == "C384" %} 
         get_MED        => post_MED
         
         {% else %}
@@ -98,7 +95,7 @@
         
         {% endif %}
         
-        {% if OCNRES != 'mx025' %}
+        {% if OCNRES != "mx025" %}
         post_ICE        => chgres_ICE
         get_OCN         => chgres_OCN
         CHGRES:succeed-all => link_member_dirs
@@ -118,28 +115,21 @@
 # tasks
 [runtime]
     [[root]] 
+        execution retry delays = 3*PT10M
+        platform = slurm_local
         init-script = """
 umask 022
 set -xu
-export SCRIPT_DIR=${CYLC_SUITE_DEF_PATH}/SCRIPTS
+export SCRIPT_DIR=${CYLC_RUN_DIR}/${CYLC_WORKFLOW_NAME}/_cylc-install/source/SCRIPTS
 """
         pre-script = """
-source ${CYLC_SUITE_DEF_PATH}/SCRIPTS/modules.sh
-        """
-        post-script = """
-rm -r ${CYLC_TASK_WORK_DIR}
+source ${SCRIPT_DIR}/modules.sh
         """
         [[[environment]]]
             DTG                 = $(cylc cycle-point --template=%Y%m%d%H)
             ATMRES              = {{ ATMRES }}
             OCNRES              = {{ OCNRES }}
             C96_REPLAY          = {{ C96_REPLAY }}
-        [[[job]]]
-            execution retry delays = 3*PT10M
-            batch system = slurm
-        [[[events]]]
-            failed handler  = cylc email-task
-            submission failed handler = cylc email-task
         [[[directives]]]
             --account = marine-cpu
             --ntasks = 1
@@ -153,8 +143,7 @@ rm -r ${CYLC_TASK_WORK_DIR}
         [[[directives]]]
             --partition = service
     [[GET]]
-        [[[job]]]
-            batch system = background
+        platform = localhost
     [[get<models>]]
         inherit = GET
         script = """
@@ -162,8 +151,7 @@ rm -r ${CYLC_TASK_WORK_DIR}
         ${SCRIPT_DIR}/get_${model}.sh ${DTG} 
         """
     [[POST]]
-        [[[job]]]
-            batch system = background
+        platform = localhost
     [[post<post_models>]]
         inherit = POST
         script = """
@@ -172,20 +160,13 @@ rm -r ${CYLC_TASK_WORK_DIR}
         """
     [[GET_PERTURBATIONS]]
         inherit = HPSS
-        [[[job]]]
-            batch system = background
+        platform = localhost
     [[get_perturbations<perturbation_models>]]
         inherit = GET_PERTURBATIONS
         script = """
         model=${CYLC_TASK_PARAM_perturbation_models}
         ${SCRIPT_DIR}/get_perturbations_${model}.sh ${DTG} 
         """
-    #[[chgres_compile]]
-    #    script = """
-    #    ${SCRIPT_DIR}/chgres_compile.sh 
-    #    """
-    #    [[[job]]]
-    #        batch system = background
     [[CHGRES]]
         [[[directives]]]
             --ntasks = 6
@@ -196,11 +177,10 @@ rm -r ${CYLC_TASK_WORK_DIR}
         ${SCRIPT_DIR}/chgres_${model}.sh ${DTG}
         """
     [[link_member_dirs]]
+        platform = localhost
         script = """
         ${SCRIPT_DIR}/link_member_dirs.sh ${DTG} 
         """
-        [[[job]]]
-            batch system = background
     [[ics_to_hpss]]
         inherit = HPSS
         script = """

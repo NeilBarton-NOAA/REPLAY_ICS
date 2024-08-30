@@ -18,12 +18,18 @@ if [[ ${ATMRES} == "C96" ]]; then
         EY=0
     fi
     file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:3}01.tar
-else
+else # C192 or C384
     hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
-    if [[ ${NENS} == 10 ]]; then
-        file_name=${hpss_atm_increment_dir}/${ATMRES}_era5anl_${dtg:0:8}03_inc.tar
+    if [[ ${ATMRES} == "C192" ]]; then
+        file_name=$( hsi -q ls -l ${hpss_atm_increment_dir}/C384_era5anl_*03_inc.tar 2>&1 | grep C384_era5anl | head -n 1 | awk '{print $9}' )
+    NENS=10
+    file_name=${hpss_atm_increment_dir}/${file_name}
     else
-        file_name=${hpss_atm_increment_dir}/${ATMRES}_era5anl_5mem_${dtg:0:8}03_inc.tar
+        if [[ ${NENS} == 10 ]]; then
+            file_name=${hpss_atm_increment_dir}/${ATMRES}_era5anl_${dtg:0:8}03_inc.tar
+        else
+            file_name=${hpss_atm_increment_dir}/${ATMRES}_era5anl_5mem_${dtg:0:8}03_inc.tar
+        fi
     fi
 fi
 
@@ -49,7 +55,7 @@ for n in $( seq 1 ${NENS}); do
     if [[ ${ATMRES} == "C96" ]]; then
         hpss_file=${inc_dir}/${EY}${dtg:3:3}01/${ATMRES}_era5anl_mem${mem}_${EY}${dtg:3:3}01.nc 
     else
-        hpss_file=${inc_dir}/${ATMRES}_era5anl_inc${i}_${dtg:0:8}03.nc 
+        hpss_file=$( ls ${inc_dir}/C384_era5anl_inc${i}_*03.nc )
     fi
     mv ${hpss_file} ${inc_file}
     if (( ${?} > 0 )); then

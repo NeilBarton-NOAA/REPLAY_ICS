@@ -5,8 +5,7 @@ dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 source ${SCRIPT_DIR}/defaults.sh
-
-dir=${IC_DIR}/${dtg}/mem000/med
+dir=${dir_med}
 mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING MEDIATOR data to ${dir}"
 

@@ -1,31 +1,33 @@
 #!/bin/bash
 set -xu
 dtg=${1}
-
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${IC_DIR}/${dtg}/ && cd ${dir}/mem000
 
-models=$( ls -d */ )
+LINK_MEMBERS () {
+dir=${1}
+NENS=${2}
+if [[ ${LAND_VER} == HR4 ]]; then
+    mem000_dir="../../../../mem${dir##*mem}"
+else
+    mem000_dir="../../mem${dir##*mem}"
+fi 
 for i in $(seq 1 ${NENS}); do
-    mem=$(printf "%03d" ${i})
-    out_dir=${IC_DIR}/${dtg}/mem${mem}
-    for model in ${models}; do
-        dir=${out_dir}/${model} 
-        mkdir -p ${dir} && cd ${dir}
-        files=$( ls ../../mem000/${model}* )
-        for f in ${files}; do
-            ln -sf ../../mem000/${model}${f} .
-        done
+    mem=$(printf "%03d" ${i})   
+    dir_mem=${dir/mem000/mem${mem}} 
+    mkdir -p ${dir_mem} && cd ${dir_mem}
+    echo $dir_mem
+    files=$( ls ${mem000_dir}/* )
+    for f in ${files}; do
+        ln -sf ${mem000_dir}/$(basename ${f}) .
     done
 done
+}
 
-cd ${IC_DIR}/${dtg}
-current_time=$(date)
-cat <<EOF > README
-RESOLUTION: ${ATMRES}${OCNRES}
-REPLAY ICS are valid at 03Z
-The file folders are at 00Z to run in g-w
-Files Created on ${current_time}
-EOF
+[[ -d ${dir_atmos} ]] && LINK_MEMBERS ${dir_atmos} ${NENS}
+[[ -d ${dir_ocean} ]] && LINK_MEMBERS ${dir_ocean} ${NENS}
+[[ -d ${dir_ice} ]] && LINK_MEMBERS ${dir_ice} ${NENS}
+[[ -d ${dir_wave} ]] && LINK_MEMBERS ${dir_wave} ${NENS}
+[[ -d ${dir_med} ]] && LINK_MEMBERS ${dir_med} ${NENS}
 
+echo "Linked ICs to member directories"

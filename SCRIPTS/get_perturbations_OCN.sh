@@ -3,7 +3,7 @@ set -u
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-inc_dir=${IC_DIR}/${dtg}/ocean/perturbation
+inc_dir=${dir_ocean_perturbations}/perturbation
 mkdir -p ${inc_dir} && cd ${inc_dir}
 echo "DOWNLOADING OCN INCREMENT data to ${inc_dir}"
 
@@ -20,6 +20,9 @@ elif [[ ${OCNRES} == "mx025" ]]; then
     f_dtg=${dtg}
     if [[ ${dtg:0:4} == 2021 ]]; then
         f_dtg=2010${dtg:4:6}
+    fi
+    if [[ ${dtg:0:4} == 2023 ]]; then
+        f_dtg=2006${dtg:4:6}
     fi
     if [[ ${NENS} == 10 ]]; then
         file_name=${hpss_ocn_increment_dir}/ocn_perts_C384_${f_dtg}.tar
@@ -54,14 +57,14 @@ fi
 for n in $( seq 1 ${LN} ); do
     # copy file to correct directory
     mem=$(printf "%03d" ${n})
-    dir=${IC_DIR}/${dtg}/mem${mem}/ocean
-    mkdir -p ${dir}
+    dir_mem=${dir_ocean_perturbations/mem001/mem${mem}}
+    mkdir -p ${dir_mem}
     if [[ ${OCNRES} == "mx100" ]]; then
         pert_file=${inc_dir}/${dtg:0:6}0100/mem${mem}_pert.nc
     else
         pert_file=${inc_dir}/${dtg}/mem${mem}_pert.nc
     fi
-    inc_file=${dir}/${DTG_TEXT}.mom6_perturbation.nc
+    inc_file=${dir_mem}/${DTG_TEXT}.mom6_perturbation.nc
     mv ${pert_file} ${inc_file}
     if (( ${?} > 0 )); then
         echo 'ERROR in copying perturbation'
@@ -71,11 +74,10 @@ for n in $( seq 1 ${LN} ); do
 done
 
 if [[ ${LN} == 4 ]]; then
-    dir=${IC_DIR}/${dtg}/mem005/ocean
-    mkdir -p ${dir} && cd ${dir}
-    ln -s ../../mem001/ocean/${DTG_TEXT}.mom6_perturbation.nc .
+    dir_mem=${dir_ocean_perturbations/mem001/mem005}
+    dir_mem001=${dir_ocean_perturbations}
+    mkdir -p ${dir_mem} && cd ${dir_mem}
+    cp ${dir_mem001}/${DTG_TEXT}.mom6_perturbation.nc .
 fi
-
-ls ${IC_DIR}/${dtg}/mem???/ocean/${DTG_TEXT}.mom6_perturbation.nc
-rm -r ${IC_DIR}/${dtg}/ocean
+rm -r ${inc_dir}
 echo 'OCN perturbation files downloaded and put into mem directories'

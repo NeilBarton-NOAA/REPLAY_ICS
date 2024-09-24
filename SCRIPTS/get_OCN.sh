@@ -4,8 +4,7 @@ dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 source ${SCRIPT_DIR}/defaults.sh
-
-dir=${IC_DIR}/${dtg}/mem000/ocean
+dir=${dir_ocean}
 mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING MOM6 data to ${dir}"
 WGET_AWS ${aws_path}/MOM.res.nc ${DTG_TEXT}.MOM.res.nc

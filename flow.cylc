@@ -2,18 +2,16 @@
 ####################################
 # define suite
 #   hopefully user does not have to edit anything below here
-{% set ICP = '19940101' %}
-{% set FCP = '20231231' %}
-{% set ATMRES = "C192" %}
-{% set OCNRES = "mx025" %}
+# set ICP = '19940101' %}
+# set FCP = '20231231' %}
+{% set ATMRES = ATMRES | default("C384") %}
 {% set C96_REPLAY = False %}
-{% set DATES = "01T00" %}
 {% set MAIL_ADDRESS = "neil.barton@noaa.gov" %}
-
+{% set DEBUG_Q = True %}
 ####################################
 # DATES option
-# P1W                                   : Run once a week Start on {{ ICP }}
-# P1D                                   : Run once a day starting on {{ ICP }}
+# P1W                                   : Run once a week Start on ICP
+# P1D                                   : Run once a day starting on ICP
 # W-4T00                                : Run on Thursdays
 # W-1T00,W-4T00                         : Run on Mondays and Thursdays
 # 01T00                                 : Run on the First of each month
@@ -24,6 +22,7 @@
 # Options based on the above
 {% set CHGRES_MODELS = "ATM, OCN, ICE" %}
 {% set PERTURBATION_MODELS = "ATM, OCN" %}
+
 {% if C96_REPLAY %}
 {% set ATMRES = "C96" %}
 {% set OCNRES = "mx100" %}
@@ -32,14 +31,26 @@
 {% endif %}
 
 {% if ATMRES == "C384" %}
+{% set ICP = '20230802' %}
+{% set FCP = '20230920' %}
+{% set DATES = "W-1T00,W-4T00" %}
+{% set OCNRES = "mx025" %}
 {% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
 {% set POST_MODELS = "AER, ICE, MED" %}
 {% endif %}
+
 {% if ATMRES == "C192" %}
+{% set OCNRES = "mx025" %}
 {% set MODELS = "ATM, OCN, ICE, WAV" %}
 {% set POST_MODELS = "AER, ICE" %}
+{% set DATES = "01T00" %}
 {% endif %}
+
 {% if ATMRES == "C96" %}
+{% set ICP = '19940101' %}
+{% set FCP = '20231231' %}
+{% set DATES = "19940501T0000Z/P1Y,19941101T0000Z/P1Y" %}
+{% set OCNRES = "mx100" %}
 {% set MODELS = "ATM, OCN, ICE " %}
 {% set POST_MODELS = "AER, ICE, SFC" %}
 {% endif %} 
@@ -51,7 +62,7 @@
 [scheduler]
     UTC mode = True
     [[events]]
-        mail events = failed, stall, abort, submission failed
+        mail events = stall, abort, submission failed, fail
     [[mail]]
         to = {{ MAIL_ADDRESS }}
     
@@ -64,60 +75,65 @@
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    runahead limit = P0 
+    runahead limit = P10
     [[queues]]
         [[[default]]]
-            limit = 12
+            limit = 10
+        {% if DEBUG_Q %}
+        [[[DEBUG_Q]]]
+            limit = 2
+            members = POST
+        {% endif %}
         [[[AER_GRAB]]]
-            limit = 1
+            limit = 5
             members = post_AER
         [[[BACKGROUND]]]
-            limit = 8
+            limit = 10
             members = GET, GET_PERTURBATIONS
     [[graph]]
         {{ DATES }} = """
          GET
         
         {% if C96_REPLAY %} 
-        get_ALL        => post_ICE & post_AER & post_MED
+            get_ALL        => post_ICE & post_AER & post_MED
+        
         {% else %}
         
-        get_ATM        => post_AER 
-        get_ICE        => post_ICE
+            get_ATM        => post_AER 
+            get_ICE        => post_ICE
         
-        {% if ATMRES == "C384" %} 
-        get_MED        => post_MED
-        post_MED       => link_member_dirs
+            {% if ATMRES == "C384" %} 
+                get_MED        => post_MED
 
-        {% else %}
-        post_AER        => chgres_ATM
-        chgres_ATM      => link_member_dirs
-        
-        {% endif %}
-        
-        {% if ATMRES == "C96" %}
-        chgres_ATM      => post_SFC
-        post_SFC        => link_member_dirs
-        
-        {% endif %}
-        
-        {% if OCNRES != "mx025" %}
-        post_ICE        => chgres_ICE
-        get_OCN         => chgres_OCN
-        CHGRES:succeed-all => link_member_dirs
-        {% endif %}
-        
+            {% else %}
+                post_AER        => chgres_ATM
+                chgres_ATM      => link_member_dirs
+                
+            {% endif %}
+                
+            {% if ATMRES == "C96" %}
+                chgres_ATM      => post_SFC
+                post_SFC        => link_member_dirs
+                
+            {% endif %}
+                
+            {% if OCNRES != "mx025" %}
+                post_ICE        => chgres_ICE
+                get_OCN         => chgres_OCN
+                CHGRES:succeed-all => link_member_dirs
+            {% endif %}
+                
         {% endif %} # C96_REPLAY
 
-        
-        GET_PERTURBATIONS:succeed-all => link_member_dirs
-        GET:succeed-all               => link_member_dirs
-        POST:succeed-all              => link_member_dirs
-        link_member_dirs              => ics_to_hpss
-        
-        """
+                
+                GET_PERTURBATIONS:succeed-all => link_member_dirs
+                GET:succeed-all               => link_member_dirs
+                POST:succeed-all              => link_member_dirs
+                link_member_dirs              => ics_to_hpss
+                
+                """
 
-################################################
+        ################################################
 # tasks
 [runtime]
     [[root]] 
@@ -141,7 +157,11 @@ source ${SCRIPT_DIR}/modules.sh
             --ntasks = 1
             --time = 00:30:00
             --mem = 0
-            #--qos = debug
+            {% if DEBUG_Q %}
+            --qos = debug
+            {% endif %}
+        [[[events]]]
+            mail events = stall, abort, submission failed, failed
 
 ####################################
 # grab experiments and obs
@@ -150,6 +170,8 @@ source ${SCRIPT_DIR}/modules.sh
             --partition = service
     [[GET]]
         platform = localhost
+        #[[[directives]]]
+        #    --partition = service
     [[get<models>]]
         inherit = GET
         script = """
@@ -158,6 +180,8 @@ source ${SCRIPT_DIR}/modules.sh
         """
     [[POST]]
         platform = localhost
+        #[[[directives]]]
+        #    --partition = service
     [[post<post_models>]]
         inherit = POST
         script = """
@@ -165,8 +189,8 @@ source ${SCRIPT_DIR}/modules.sh
         ${SCRIPT_DIR}/post_${model}.sh ${DTG}
         """
     [[GET_PERTURBATIONS]]
-        inherit = HPSS
         platform = localhost
+        #inherit = HPSS
     [[get_perturbations<perturbation_models>]]
         inherit = GET_PERTURBATIONS
         script = """

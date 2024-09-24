@@ -4,8 +4,7 @@ dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 source ${SCRIPT_DIR}/defaults.sh
-
-dir=${IC_DIR}/${dtg}/mem000/ice
+dir=${dir_ice}
 mkdir -p ${dir} && cd ${dir}
 
 echo "DOWNLOADING CICE data to ${dir}"

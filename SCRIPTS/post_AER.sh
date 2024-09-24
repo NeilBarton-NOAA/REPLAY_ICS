@@ -4,7 +4,7 @@ dtg=${1}
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${IC_DIR}/${dtg}/mem000/atmos
+dir=${dir_atmos}
 
 echo "Adding Aerosols to FV3 Files in ${dir}"
 

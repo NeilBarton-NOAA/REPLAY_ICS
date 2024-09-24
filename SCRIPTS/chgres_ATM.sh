@@ -4,7 +4,7 @@ dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
 compiler=${chgres_compiler}
-dir=${IC_DIR}/${dtg}/mem000/atmos
+dir=${dir_atmos}
 export DATA=${dir}
 SRC_ATMRES="C384"
 SRC_OCNRES="mx025"

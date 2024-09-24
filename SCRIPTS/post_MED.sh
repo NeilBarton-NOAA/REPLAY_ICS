@@ -4,7 +4,7 @@ dtg=${1}
 
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${IC_DIR}/${dtg}/mem000/med
+dir=${dir_med}
 
 echo "EDITING MEDIATOR restart in ${dir}"
 file=${dir}/${DTG_TEXT}.ufs.cpld.cpl.r.nc

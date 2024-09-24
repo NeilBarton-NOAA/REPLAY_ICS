@@ -3,7 +3,7 @@ set -xu
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${IC_DIR}/${dtg}/mem000/ice
+dir=${dir_ice}
 compiler=${chgres_compiler}
 
 ########################

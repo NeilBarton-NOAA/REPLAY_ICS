@@ -3,7 +3,7 @@ set -u
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-inc_dir=${IC_DIR}/${dtg}/atmos/perturbation
+inc_dir=${dir_atmos_perturbations}/perturbation
 mkdir -p ${inc_dir} && cd ${inc_dir}
 
 echo "DOWNLOADING ATM INCREMENT data to ${inc_dir}"
@@ -44,18 +44,18 @@ fi
 for n in $( seq 1 ${NENS}); do
     # copy file to correct directory
     mem=$(printf "%03d" ${n})
-    dir=${IC_DIR}/${dtg}/mem${mem}/atmos
-    mkdir -p ${dir}
+    dir_mem=${dir_atmos_perturbations/mem001/mem${mem}}
+    mkdir -p ${dir_mem}
     if [[ ${NENS} == 10 ]]; then
         i=$(( n - 1 ))
     else
         i=$(( n + 4 ))
     fi
-    inc_file=${dir}/${DTG_TEXT}.fv3_perturbation.nc
+    inc_file=${dir_mem}/${DTG_TEXT}.fv3_perturbation.nc
     if [[ ${ATMRES} == "C96" ]]; then
         hpss_file=${inc_dir}/${EY}${dtg:3:3}01/${ATMRES}_era5anl_mem${mem}_${EY}${dtg:3:3}01.nc 
     else
-        hpss_file=$( ls ${inc_dir}/C384_era5anl_inc${i}_*03.nc )
+        hpss_file=$( ls ${inc_dir}/C384_era5anl_inc${i}_${dtg:0:8}03.nc )
     fi
     mv ${hpss_file} ${inc_file}
     if (( ${?} > 0 )); then
@@ -65,7 +65,6 @@ for n in $( seq 1 ${NENS}); do
     fi
 done
 
-ls ${IC_DIR}/${dtg}/mem???/atmos/${DTG_TEXT}.fv3_perturbation.nc
-rm -r ${IC_DIR}/${dtg}/atmos
+rm -r ${inc_dir}
 echo 'ATM perturbation files downloaded and put into mem directories'
 exit 0

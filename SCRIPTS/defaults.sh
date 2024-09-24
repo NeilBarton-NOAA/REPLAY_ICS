@@ -15,15 +15,20 @@ if [[ ${ATMRES} != "C384" ]]; then
 fi
 
 ############
+machine=$(uname -n)
+[[ ${machine:0:3} == hfe ]] && TOPICDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs
+[[ ${machine} == hercules* ]] && TOPICDIR=/work/noaa/marine/nbarton/ICs
+
+############
 # time stamp, Noah-MP land version, and IC directory
 if [[ ${ATMRES} == "C384" ]]; then
     DTG_TEXT=${dtg:0:8}.030000 # restarts valid at 
     LAND_VER=HR3
-    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
+    IC_DIR=${TOPICDIR}/REPLAY_ICs/${ATMRES}${OCNRES}
 else
     DTG_TEXT=${dtg:0:8}.000000 # restarts valid at 
     LAND_VER=HR4
-    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/${LAND_VER}/${ATMRES}${OCNRES}
+    IC_DIR=${TOPICDIR}/${LAND_VER}/${ATMRES}${OCNRES}
 fi
 mkdir -p ${IC_DIR}
 

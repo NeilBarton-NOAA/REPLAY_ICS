@@ -15,20 +15,21 @@ if [[ ${ATMRES} != "C384" ]]; then
 fi
 
 ############
-machine=$(uname -n)
-[[ ${machine:0:3} == hfe ]] && TOPICDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs
-[[ ${machine} == hercules* ]] && TOPICDIR=/work/noaa/marine/nbarton/ICs
-
-############
 # time stamp, Noah-MP land version, and IC directory
+LAND_VER=HR4
+if [[ ${ATMRES} == "C384" ]]; then
+    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/${LAND_VER}/${ATMRES}${OCNRES}/${dtg}
+else
+    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/${LAND_VER}/${ATMRES}${OCNRES}
+fi
+if [[ ${LAND_VER} == "HR3" ]]; then
+    LAND_VER=HR3
+    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
+fi
 if [[ ${ATMRES} == "C384" ]]; then
     DTG_TEXT=${dtg:0:8}.030000 # restarts valid at 
-    LAND_VER=HR3
-    IC_DIR=${TOPICDIR}/REPLAY_ICs/${ATMRES}${OCNRES}
 else
     DTG_TEXT=${dtg:0:8}.000000 # restarts valid at 
-    LAND_VER=HR4
-    IC_DIR=${TOPICDIR}/${LAND_VER}/${ATMRES}${OCNRES}
 fi
 mkdir -p ${IC_DIR}
 
@@ -43,7 +44,7 @@ if [[ ${LAND_VER} == HR3 ]]; then
     dir_med=${IC_DIR}/${dtg}/mem000/med
 else
     if [[ ${ATMRES} == "C384" ]]; then
-        dir_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/model/atmos/restart
+        dir_atmos=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/atmos/restart
     else
         dir_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/model/atmos/input
     fi
@@ -59,7 +60,8 @@ fi
 ############
 # Replay Restarts
 # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
+aws_dtg="${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
+aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${aws_dtg}"
 
 ########################
 # CODE Directory for chgres and aerosol tools

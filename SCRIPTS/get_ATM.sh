@@ -7,21 +7,25 @@ source ${SCRIPT_DIR}/defaults.sh
 dir=${dir_atmos}
 mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING FV3 data to ${dir}"
+# surface files for C192, https://noaa-oar-sfsdev-pds.s3.amazonaws.com/index.html#input/c192/hr4_land/1994050106/ 
 
 files='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data'
+IDS=""
 for f in ${files}; do
     for tile in $(seq 1 6); do
         file_in=${f}.tile${tile}.nc 
         file_out=${DTG_TEXT}.${f}.tile${tile}.nc
         if [[ ${f} == "sfc_data" ]]; then
-            if [[ ${LAND_VER} == HR3 ]]; then
-                WGET_AWS ${aws_path}/hr3_land/${file_in} ${file_out} 
-            else
-                echo 'WARNING: GRAB C384 HR4 land when ready'
-                WGET_AWS ${aws_path}/${file_in} ${file_out} 
-            fi
+            lower_case=$( echo ${LAND_VER} | tr '[:upper:]' '[:lower:]')
+            #WGET_AWS ${aws_path}/${lower_case}_land/${file_in} ${file_out} 
+            ID=$( GLOBUS_AWS ${aws_dtg}/${lower_case}_land/${file_in} ${dir}/${file_out} )
+            [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed" && exit 1
+            IDS="${IDS} ${ID}"
         else
-            WGET_AWS ${aws_path}/${file_in} ${file_out} 
+            #WGET_AWS ${aws_path}/${file_in} ${file_out} 
+            ID=$( GLOBUS_AWS ${aws_dtg}/${file_in} ${dir}/${file_out} )
+            [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed" && exit 1
+            IDS="${IDS} ${ID}"
         fi
    done
 done
@@ -29,7 +33,29 @@ files='ca_data fv_core.res'
 for f in ${files}; do
     file_in=${f}.nc
     file_out=${DTG_TEXT}.${f}.nc
-    WGET_AWS ${aws_path}/${file_in} ${file_out} 
+    #WGET_AWS ${aws_path}/${file_in} ${file_out} 
+    ID=$( GLOBUS_AWS ${aws_dtg}/${file_in} ${dir}/${file_out} )
+    if [[ ${ID} == 9999 ]]; then
+        echo "FATAL: globus submit failed"
+        if (( ${#IDS} >= 36 )); then 
+            for ID in ${IDS}; do
+                globus cancel ${ID}
+            done
+        fi
+        exit 1
+    fi
+    IDS="${IDS} ${ID}"
+done
+
+# wait for the downloads to finish
+for ID in ${IDS}; do
+    globus task wait ${ID}
+done
+
+# remove checksum from sfc_data files
+for tile in $(seq 1 6); do
+    file_out=${DTG_TEXT}.sfc_data.tile${tile}.nc
+    ncatted -a checksum,,d,, ${file_out}
 done
 
 FIND_EMPTY_FILES ${PWD}

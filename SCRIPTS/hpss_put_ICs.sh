@@ -21,7 +21,8 @@ if (( ${?} > 0 )); then
     echo 'ERROR in htar'
     exit 1
 fi
-if [[ ${ATMRES} != "C96" ]]; then
+if [[ ${ATMRES} == "C384" ]]; then
     echo "Removing C384 and C192 data from hera"
-    rm -r ${dtg}
+    rm -r ${IC_DIR} 
+    #rm -r ${run}.${dtg:0:8} ${run}.${dtg_precycle:0:8}
 fi

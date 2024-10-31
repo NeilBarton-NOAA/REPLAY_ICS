@@ -69,7 +69,7 @@ else
 fi
 for i in {1..6}; do 
     echo "Adding aerosols to ${DTG_TEXT}.fv_tracer.res.tile${i}.nc"
-    ${dir_aer_code}/merra2_to_ufs_cubesphere_restarts.py -m ${merra_file} -c ${DTG_TEXT}.fv_core.res.nc -t ${DTG_TEXT}.fv_tracer.res.tile${i}.nc -r ${ATMRES_POSTAER} -cyc 1
+    ${PYTHON} ${dir_aer_code}/merra2_to_ufs_cubesphere_restarts.py -m ${merra_file} -c ${DTG_TEXT}.fv_core.res.nc -t ${DTG_TEXT}.fv_tracer.res.tile${i}.nc -r ${ATMRES_POSTAER} -cyc 1
     if (( ${?} > 0 )); then
         echo "merra2_to_ufs_cubsphere_restarts.py failed"
         exit 1

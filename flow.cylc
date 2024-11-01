@@ -41,7 +41,7 @@
 # Miniset
 # 20180104 - 20180222
 # 20180802 - 20180920
-{% set DATES = "W-1T00,W-4T00" %}
+{% set DATES = "W-4T00" %}
 {% set OCNRES = "mx025" %}
 {% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
 {% set POST_MODELS = "AER, ICE, MED" %}
@@ -86,7 +86,7 @@
 [scheduling]
     initial cycle point = {{ ICP }}
     final cycle point = {{ FCP }}
-    runahead limit = P15
+    runahead limit = P20
     [[queues]]
         [[[default]]]
             limit = 30
@@ -108,7 +108,7 @@
             limit = 15
             members = GET
         [[[GLOBUS_ATM]]]
-            limit = 2
+            limit = 4
             members = get_ATM
     [[graph]]
         {{ DATES }} = """

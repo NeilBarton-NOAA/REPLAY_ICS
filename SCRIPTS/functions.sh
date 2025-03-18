@@ -17,7 +17,7 @@ GLOBUS_AWS () {
 file_in=${1}
 file_out=${2}
 if [[ ! -f ${file_out} ]]; then
-    ID=$( globus transfer ${UUID_AWS_S3_PUBLIC}\://noaa-ufs-gefsv13replay-pds/${file_in} \
+    ID=$( globus transfer ${UUID_AWS_S3_PUBLIC}\://${file_in} \
         ${UUID_HERA_DTN}\:${file_out} | \
         tail -n 1 | \
         awk '{print $3}' )
@@ -28,12 +28,15 @@ fi
 
 FIND_EMPTY_FILES () {
 dir_in=${1}
-n_empty=$( find ${dir_in} -size 0 | grep -v ca_data.nc | wc -l )
+n_empty=$( find ${dir_in} -type f -size -17k | grep -v ca_data | grep -v coupler.res | wc -l )
 if (( ${n_empty} >> 0 )); then
     echo "Failed: empty files found"
-    files=$( find ${dir_in} -size 0 | grep -v ca_data.nc )
-    echo "  removing:  "${files}
-    find ${dir_in} -type f -size 0 -delete
+    files=$( find ${dir_in} -type f -size -17k | grep -v ca_data | grep -v coupler.res )
+    for f in ${files}; do
+        echo "  removing:  "${f}
+        rm ${f}
+    done
+    #find ${dir_in} -type f -size 0 -delete
     exit 1
 fi
 }

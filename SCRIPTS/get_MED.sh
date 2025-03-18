@@ -12,7 +12,7 @@ echo "DOWNLOADING MEDIATOR data to ${dir}"
 file_in=ufs.cpld.cpl.r.${dtg:0:4}-${dtg:4:2}-${dtg:6:2}-10800.nc
 file_out=${DTG_TEXT}.ufs.cpld.cpl.r.nc
 #WGET_AWS ${aws_path}/${file_in} ${file_out}
-ID=$( GLOBUS_AWS ${aws_dtg}/${file_in} ${dir}/${file_out} )
+ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
 [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed" && exit 1
 globus task wait ${ID}
 

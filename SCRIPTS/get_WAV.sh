@@ -11,7 +11,7 @@ echo "DOWNLOADING WAVEWATCHIII data to ${dir}"
 file_in=restart.ww3
 file_out=${DTG_TEXT}.restart.glo_025
 #WGET_AWS ${aws_path}/${file_in} ${file_out}
-ID=$( GLOBUS_AWS ${aws_dtg}/${file_in} ${dir}/${file_out} )
+ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
 [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed" && exit 1
 globus task wait ${ID}
 

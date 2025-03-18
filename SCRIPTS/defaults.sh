@@ -60,8 +60,8 @@ fi
 ############
 # Replay Restarts
 # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-aws_dtg="${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
-aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${aws_dtg}"
+aws_path="noaa-ufs-gefsv13replay-pds/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
+aws_C192sfc="noaa-oar-sfsdev-pds/input/c192/hr4_land/${dtg}"
 
 ########################
 # CODE Directory for chgres and aerosol tools

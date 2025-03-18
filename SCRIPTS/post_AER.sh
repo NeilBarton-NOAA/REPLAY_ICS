@@ -16,17 +16,33 @@ if [[ ! -d ${dir_aer_code} ]]; then
 fi
 
 ############
+# remove small files
+n_files=$( find ${dir} -type f -size -17k | grep tracer.res | wc -l )
+if (( ${n_files} >> 0 )); then
+    files=$( find ${dir} -type f -size -17k | grep tracer.res )
+    for f in ${files}; do
+        if [[ -f ${f}.old ]]; then
+            mv ${f}.old ${f}
+        else
+            echo "FATAL, small file: ${f}"
+            exit 1
+        fi
+    done
+fi
+
+############
 # download data
 cd ${dir}
 https=https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/
 MN=400
+# files grouped month
 if (( ${dtg} < 2001010100 )); then
  MN=200
 fi
 if (( ${dtg} > 2000123100 )) && (( ${dtg} < 2011010100 )); then
  MN=300
 fi
-if (( ${dtg} > 2020080100 )) && (( ${dtg} < 2020100100 )); then
+if (( ${dtg} >= 2020090100 )) && (( ${dtg} < 2020100100 )); then
  MN=401
 fi
 if (( ${dtg} >= 2021060100 )) && (( ${dtg} < 2021100100 )); then
@@ -54,8 +70,9 @@ if [ ! -f ${merra_file} ]; then #3rd try, download from MERRA Server
 fi
 if [ ! -f ${merra_file} ]; then
     echo "FATAL in downloading MERRA file: ${merra_file}"
+    echo " tried:"
+    echo "  hpss @ ${HSI_DIR}/${merra_file}"
     echo "  https://goldsmr5.gesdisc.eosdis.nasa.gov/data/MERRA2/M2I3NVAER.5.12.4/${dtg:0:4}/${dtg:4:2}/${merra_file}"
-    echo "  or "
     echo "  htar -xvf /NCEPDEV/emc-naqfc/5year/Barry.Baker/MERRA2_INST_3D_AERO/${merra_file}"
     exit 1
 fi

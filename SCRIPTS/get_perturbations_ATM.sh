@@ -19,8 +19,8 @@ if [[ ${ATMRES} == "C96" ]]; then
     fi
     file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:3}01.tar
 else # C192 or C384
-    #hpss_atms_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/era5/C384_perts/${dtg:0:4}
-    hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
+    hpss_atm_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/era5/C384_perts/${dtg:0:4}
+    #hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
     if [[ ${ATMRES} == "C192" ]]; then
         file_name=$( hsi -q ls -l ${hpss_atm_increment_dir}/C384_era5anl_${dtg:0:6}*03_inc.tar 2>&1 | grep C384_era5anl | head -n 1 | awk '{print $9}' )
         NENS=10
@@ -38,8 +38,22 @@ htar -xvf ${file_name}
 if (( ${?} > 0 )); then
     echo 'ERROR in htar, file likely does not exist'
     echo '  file_name:', ${file_name}
-    exit 1
+    hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
+    if [[ ${ATMRES} == "C192" ]]; then
+        file_name=$( hsi -q ls -l ${hpss_atm_increment_dir}/C384_era5anl_${dtg:0:6}*03_inc.tar 2>&1 | grep C384_era5anl | head -n 1 | awk '{print $9}' )
+        NENS=10
+        file_name=${hpss_atm_increment_dir}/${file_name}
+    else
+        file_name=${hpss_atm_increment_dir}/$(basename ${file_name})
+    fi
+    htar -xvf ${file_name}
+    if (( ${?} > 0 )); then
+        echo 'FATAL in htar, file also not at'
+        echo '  file_name:', ${file_name}
+        exit 1
+    fi
 fi
+
 ########################
 # copy increment files to directories
 for n in $( seq 1 ${NENS}); do
@@ -56,7 +70,7 @@ for n in $( seq 1 ${NENS}); do
     if [[ ${ATMRES} == "C96" ]]; then
         hpss_file=${inc_dir}/${EY}${dtg:3:3}01/${ATMRES}_era5anl_mem${mem}_${EY}${dtg:3:3}01.nc 
     else
-        hpss_file=$( ls ${inc_dir}/C384_era5anl_inc${i}_${dtg:0:6}??03.nc )
+        hpss_file=$( ls ${inc_dir}/C384_era5anl_???${i}_${dtg:0:6}??03.nc | head -n 1 )
     fi
     mv ${hpss_file} ${inc_file}
     if (( ${?} > 0 )); then

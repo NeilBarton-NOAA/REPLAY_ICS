@@ -18,15 +18,14 @@ for f in ${files}; do
         if [[ ${f} == "sfc_data" ]]; then
             lower_case=$( echo ${LAND_VER} | tr '[:upper:]' '[:lower:]')
             #WGET_AWS ${aws_path}/${lower_case}_land/${file_in} ${file_out} 
-            ID=$( GLOBUS_AWS ${aws_dtg}/${lower_case}_land/${file_in} ${dir}/${file_out} )
+            ID=$( GLOBUS_AWS ${aws_path}/${lower_case}_land/${file_in} ${dir}/${file_out} )
             [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
             [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
         else
             #WGET_AWS ${aws_path}/${file_in} ${file_out} 
-            ID=$( GLOBUS_AWS ${aws_dtg}/${file_in} ${dir}/${file_out} )
+            ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
             [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
             [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
-            IDS="${IDS} ${ID}"
         fi
    done
 done
@@ -35,10 +34,9 @@ for f in ${files}; do
     file_in=${f}.nc
     file_out=${DTG_TEXT}.${f}.nc
     #WGET_AWS ${aws_path}/${file_in} ${file_out} 
-    ID=$( GLOBUS_AWS ${aws_dtg}/${file_in} ${dir}/${file_out} )
+    ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
     [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
     [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
-    IDS="${IDS} ${ID}"
 done
 
 # wait for the downloads to finish

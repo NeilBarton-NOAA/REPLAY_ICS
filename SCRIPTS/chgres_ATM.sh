@@ -22,7 +22,9 @@ export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_m
 export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
 export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
 export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
-export TRACERS_TARGET='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel","bc2","bc1","dms","dust1","dust2","dust3","dust4","dust5","seas1","seas2","seas3","seas4","seas5","oc2","oc1","so2","so4","msa"'
+#export TRACERS_TARGET='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel","bc2","bc1","dms","dust1","dust2","dust3","dust4","dust5","seas1","seas2","seas3","seas4","seas5","oc2","oc1","so2","so4","msa"'
+export TRACERS_TARGET='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
+#"bc2","bc1","dms","dust1","dust2","dust3","dust4","dust5","seas1","seas2","seas3","seas4","seas5","oc2","oc1","so2","so4","msa"'
 export TRACERS_INPUT=${TRACERS_TARGET}
 
 F=""
@@ -75,7 +77,7 @@ export OROG_FILES_TARGET_GRID=${F}
 # modules
 module purge
 module use ${HOMEufs}/modulefiles
-module load build.hera.${compiler}
+module load build.gaeac6.${compiler}
 
 mkdir -p ${COMIN}/CHGRES
 cd ${COMIN}/CHGRES

@@ -5,7 +5,7 @@
 # set ICP = '19940101' %}
 # set FCP = '20231231' %}
 # cylc vip -n C384 -s 'ATMRES="C384"' ~/REPLAY_ICS/
-{% set ATMRES = ATMRES | default("C384") %}
+{% set ATMRES = ATMRES | default("C192") %}
 {% set C96_REPLAY = False %}
 {% set MAIL_ADDRESS = "neil.barton@noaa.gov" %}
 {% set DEBUG_Q = False %}
@@ -45,17 +45,18 @@
 {% set DATES = "P1D" %}
 {% set OCNRES = "mx025" %}
 {% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
-{% set POST_MODELS = "AER, ICE, MED" %}
+{% set POST_MODELS = "AER, ICE, WAV, MED" %}
 {% endif %}
 
 {% if ATMRES == "C192" %}
 {% set ICP = '20041101' %}
-{% set FCP = '20231231' %}
+{% set FCP = '20251231' %}
 {% set OCNRES = "mx025" %}
 {% set DEBUG_Q = False %}
 {% set MODELS = "ATM, OCN, ICE, WAV" %}
-{% set POST_MODELS = "AER, ICE, SFC" %}
-{% set DATES = "19940501T0000Z/P1Y,19941101T0000Z/P1Y" %}
+{% set POST_MODELS = "ICE, SFC, WAV" %}
+{% set DATES = "R1/20250413T0000Z" %}
+#"19940501T0000Z/P1Y,19941101T0000Z/P1Y" %}
 {% endif %}
 
 {% if ATMRES == "C96" %}
@@ -120,8 +121,7 @@
         
         {% else %}
         
-            get_ATM        => post_AER 
-            get_ICE        => post_ICE
+            GET:succeed-all   => POST 
         
             {% if ATMRES == "C384" %} 
                 get_MED        => post_MED
@@ -129,7 +129,6 @@
             {% else %}
                
                 get_ATM:succeeded         => chgres_ATM
-                post_AER        => chgres_ATM
                 chgres_ATM      => post_SFC
                 post_SFC        => link_member_dirs
                 
@@ -174,12 +173,16 @@ source ${SCRIPT_DIR}/modules.sh
             OCNRES              = {{ OCNRES }}
             C96_REPLAY          = {{ C96_REPLAY }}
         [[[directives]]]
-            --account = marine-cpu
+            --account = ira-da
             --ntasks = 1
             --time = 00:30:00
             --mem = 0
+            --clusters = c6
+            --partition = batch
             {% if DEBUG_Q %}
             --qos = debug
+            {% else %}
+            --qos = normal
             {% endif %}
         [[[events]]]
             mail events = stall, abort, submission failed, failed
@@ -188,7 +191,10 @@ source ${SCRIPT_DIR}/modules.sh
 # grab experiments and obs
     [[HPSS]]
         [[[directives]]]
-            --partition = service
+            --partition = dtn_f5_f6
+            --qos = hpss
+            --clusters = es
+            --constraint = f6
     [[GET]]
         execution retry delays = 50*PT10M
         platform = localhost
@@ -201,10 +207,10 @@ source ${SCRIPT_DIR}/modules.sh
         ${SCRIPT_DIR}/get_${model}.sh ${DTG} 
         """
     [[POST]]
-        #platform = localhost
-        [[[directives]]]
-            --partition = service
-            --time = 00:10:00
+        platform = localhost
+        #[[[directives]]]
+        #    --partition = service
+        #    --time = 00:10:00
     [[post<post_models>]]
         inherit = POST
         script = """

@@ -2,6 +2,10 @@
 set -xu
 dtg=${1}
 
+if (( ${dtg:0:4} > 2024 )); then
+    "Echo sfc spin-up files not available in ${dtg}"
+    exit 0
+fi
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/functions.sh
 source ${SCRIPT_DIR}/defaults.sh
@@ -14,7 +18,7 @@ if [[ ${LAND_VER} == HR3 ]]; then
     static_file=/scratch2/BMC/gsienkf/Philip.Pegion/ufs-land-driver/static/ufs-land_${ATMRES}_hr3_static_fields.nc
     ec_dir=/scratch2/BMC/gsienkf/Philip.Pegion/ufs-land-driver/run/output/
     files=$( ls ${dir}/sfc_data.tile*.nc )
-    ${PYTHON} ${SCRIPT_DIR}/SFC_hr3_edit.py -d ${dtg} -f ${files} -s ${static_file} -ld  ${ec_dir}
+    python ${SCRIPT_DIR}/SFC_hr3_edit.py -d ${dtg} -f ${files} -s ${static_file} -ld  ${ec_dir}
     if (( $? > 0 )); then
         echo "FAIL SFC_ic_edit.py"
         exit 1
@@ -39,10 +43,13 @@ elif [[ ${LAND_VER} == HR4 ]]; then
             file=sfc_data.tile${tile}.nc 
             [[ -f ${file} ]] && rm ${file} 
             echo "Downloading ${dir}/${file}"
-            #WGET_AWS ${aws_C192sfc}/${file} ${dir}/${file} 
-            ID=$( GLOBUS_AWS ${aws_C192sfc}/${file} ${dir}/${file} )
-            [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file}" && RETRY="YES"
-            [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+            if [[ ${GLOBUS} == T ]]; then
+                ID=$( GLOBUS_AWS ${aws_C192sfc}/${file} ${dir}/${file} )
+                [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file}" && RETRY="YES"
+                [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+            else
+                WGET_AWS ${aws_C192sfc}/${file} ${dir}/${file} 
+            fi
         done
         # wait for the downloads to finish
         for ID in ${IDS}; do
@@ -55,7 +62,7 @@ elif [[ ${LAND_VER} == HR4 ]]; then
         file_out=sfc_data.tile${tile}.nc
         ncatted -a checksum,,d,, ${file_out}
         echo "Remove NaNs in: ${file_out}"
-        ${PYTHON} ${SCRIPT_DIR}/SFC_ic_edit.py -f ${file_out}
+        python ${SCRIPT_DIR}/SFC_ic_edit.py -f ${file_out}
     done
 else
     echo "LAND_VER is unknown: ${LAND_VER}"

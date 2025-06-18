@@ -1,7 +1,7 @@
 set -xu
 SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
-run=gefs
-
+run=sfs
+GLOBUS=F
 ############
 # number of ensembles
 dow=$(date -d "${dtg:0:8}" +%A)
@@ -18,19 +18,20 @@ fi
 # time stamp, Noah-MP land version, and IC directory
 LAND_VER=HR4
 if [[ ${ATMRES} == "C384" ]]; then
-    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/${LAND_VER}/${ATMRES}${OCNRES}/${dtg}
+    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/${LAND_VER}/${ATMRES}${OCNRES}/${dtg}
 else
-    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/${LAND_VER}/${ATMRES}${OCNRES}
+    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/${LAND_VER}/${ATMRES}${OCNRES}
 fi
 if [[ ${LAND_VER} == "HR3" ]]; then
     LAND_VER=HR3
-    IC_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
+    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
 fi
 if [[ ${ATMRES} == "C384" ]]; then
     DTG_TEXT=${dtg:0:8}.030000 # restarts valid at 
 else
     DTG_TEXT=${dtg:0:8}.000000 # restarts valid at 
 fi
+IC_DIR=${ICDIR:-$IC_DIR}
 mkdir -p ${IC_DIR}
 
 ###########
@@ -60,12 +61,12 @@ fi
 ############
 # Replay Restarts
 # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-aws_path="noaa-ufs-gefsv13replay-pds/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
-aws_C192sfc="noaa-oar-sfsdev-pds/input/c192/hr4_land/${dtg}"
+aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
+aws_C192sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${dtg}"
 
 ########################
 # CODE Directory for chgres and aerosol tools
-CODE_DIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/REPLAY
+CODE_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/CODE/REPLAY
 
 ########################
 # compiler used for chgres

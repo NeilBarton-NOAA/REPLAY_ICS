@@ -15,37 +15,47 @@ for f in ${files}; do
     for tile in $(seq 1 6); do
         file_in=${f}.tile${tile}.nc 
         file_out=${DTG_TEXT}.${f}.tile${tile}.nc
-        if [[ ${f} == "sfc_data" ]]; then
+        if [[ ${f} == "sfc_data" ]] && (( ${DTG} < 2024010100 )); then
             lower_case=$( echo ${LAND_VER} | tr '[:upper:]' '[:lower:]')
-            #WGET_AWS ${aws_path}/${lower_case}_land/${file_in} ${file_out} 
-            ID=$( GLOBUS_AWS ${aws_path}/${lower_case}_land/${file_in} ${dir}/${file_out} )
-            [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
-            [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+            if [[ ${GLOBUS} == T ]]; then
+                ID=$( GLOBUS_AWS ${aws_path}/${lower_case}_land/${file_in} ${dir}/${file_out} )
+                [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
+                [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+            else
+                WGET_AWS ${aws_path}/${lower_case}_land/${file_in} ${file_out} 
+            fi
         else
-            #WGET_AWS ${aws_path}/${file_in} ${file_out} 
-            ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
-            [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
-            [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+            if [[ ${GLOBUS} == T ]]; then
+                ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
+                [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
+                [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+            else
+                WGET_AWS ${aws_path}/${file_in} ${file_out} 
+            fi
         fi
    done
 done
+
 files='ca_data fv_core.res'
 for f in ${files}; do
     file_in=${f}.nc
     file_out=${DTG_TEXT}.${f}.nc
-    #WGET_AWS ${aws_path}/${file_in} ${file_out} 
-    ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
-    [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
-    [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+    if [[ ${GLOBUS} == T ]]; then
+        ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
+        [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed: ${dir}/${file_out}" && RETRY="YES"
+        [[ ${ID} != 9999 ]] && IDS="${IDS} ${ID}"
+    else
+        WGET_AWS ${aws_path}/${file_in} ${file_out} 
+    fi
 done
 
 # wait for the downloads to finish
-for ID in ${IDS}; do
-    globus task wait ${ID}
-done
-
-[[ ${RETRY:-"NO"} == "YES" ]] && exit 1
-
+if [[ ${GLOBUS} == T ]]; then
+    for ID in ${IDS}; do
+        globus task wait ${ID}
+    done
+    [[ ${RETRY:-"NO"} == "YES" ]] && exit 1
+fi
 # remove checksum from sfc_data files
 for tile in $(seq 1 6); do
     file_out=${DTG_TEXT}.sfc_data.tile${tile}.nc

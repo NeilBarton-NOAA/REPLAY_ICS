@@ -10,10 +10,14 @@ mkdir -p ${dir} && cd ${dir}
 echo "DOWNLOADING WAVEWATCHIII data to ${dir}"
 file_in=restart.ww3
 file_out=${DTG_TEXT}.restart.glo_025
-#WGET_AWS ${aws_path}/${file_in} ${file_out}
-ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
-[[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed" && exit 1
-globus task wait ${ID}
+
+if [[ ${GLOBUS} == T ]]; then    
+    ID=$( GLOBUS_AWS ${aws_path}/${file_in} ${dir}/${file_out} )
+    [[ ${ID} == 9999 ]] && echo "FATAL: globus submit failed" && exit 1
+    globus task wait ${ID}
+else
+    WGET_AWS ${aws_path}/${file_in} ${file_out}
+fi
 
 FIND_EMPTY_FILES ${PWD}
 

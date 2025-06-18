@@ -1,7 +1,7 @@
 #!/bin/bash
 set -xu
 dtg=${1}
-SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR=${SCRIPT_DIR:-$(dirname "$0")}
 source ${SCRIPT_DIR}/defaults.sh
 
 LINK_MEMBERS () {

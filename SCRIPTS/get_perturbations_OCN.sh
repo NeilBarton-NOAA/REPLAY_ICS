@@ -12,6 +12,11 @@ echo "DOWNLOADING OCN INCREMENT data to ${inc_dir}"
 LN=${NENS}
 #aws_ocn_increment_dir="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/ocn_ice/mx100/ens_perts"
 hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/oras5_ocn/ensemble_perts/${OCNRES}
+if (( ${dtg:0:4} > 2024 )); then
+    year=$(( ${dtg:0:4} - 10 ))
+    dtg=${year}${dtg:4:8}
+    echo "Year is before 2025, grabbing 10 years before ${dtg}"
+fi
 file_name=${hpss_ocn_increment_dir}/ocn_perts_for_SFS_${OCNRES}_${dtg:0:6}0100.tar
 echo "DOWNLOADING: ${file_name}"
 htar -xvf ${file_name}

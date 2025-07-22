@@ -2,7 +2,7 @@
 set -xu
 dtg=${1}
 
-if (( ${dtg:0:4} > 2024 )); then
+if (( ${dtg:0:4} > 2023 )); then
     "Echo sfc spin-up files not available in ${dtg}"
     exit 0
 fi

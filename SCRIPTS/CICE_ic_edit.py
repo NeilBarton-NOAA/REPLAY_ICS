@@ -12,8 +12,8 @@
 ####################################################################################
 import argparse
 import os
+import requests
 import xarray as xr
-#from matplotlib import pyplot as plt
 
 ################################################
 # parser for file
@@ -26,18 +26,37 @@ print(infile)
 dat = xr.open_dataset(infile)
 
 ############
+# remove ice variables over land
+mask_file = 'tmask_mx025.nc'
+if not os.path.exists(mask_file):
+    print('mask file not found, wget from github')
+    raw_url='https://raw.githubusercontent.com/NeilBarton-NOAA/REPLAY_ICS/main/SCRIPTS/' + mask_file
+    response = requests.get(raw_url)
+    with open(mask_file, 'wb') as f:
+        f.write(response.content)
+d = xr.open_dataset(mask_file)
+d = d['tmask']
+d = d.broadcast_like(dat['aicen'])
+print('Checking for ice values over land points')
+vs = ['aicen', 'vicen', 'vsnon', 'Tsfcn']
+for v in vs:
+    test = dat[v].where(d == 0)
+    if test.max().values != 0 or test.min().values != 0:
+        print(' ', v, 'has non zero values over land, setting these values to zero')
+    dat[v] = dat[v].where(d == 1, 0)
+
+############
 # remove ice and snow where there is no ice
 d = dat['aicen'].sum(axis = 0)
 vs = ['vicen', 'vsnon']
+d = d.broadcast_like(dat['aicen'])
+print('Checking for ice values at grid points of aicen.sum() values of zero')
 for v  in vs:
+    test = dat[v].where(d == 0)
+    if test.max().values != 0 or test.min().values != 0:
+        print(' ', v, 'has non zero values, setting these values to zero')
     dat[v] = dat[v].where(d != 0, 0)
-
-############
-# remove ice variables over land
-d = dat['iceumask']
-vs = ['aicen', 'vicen', 'vsnon', 'Tsfcn']
-for v in vs:
-    dat[v] = dat[v].where(d == 1, 0)
+    test = dat[v].where(d == 0)
 
 #########################
 # save file

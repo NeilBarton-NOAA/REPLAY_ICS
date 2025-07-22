@@ -5,7 +5,7 @@
 # set ICP = '19940101' %}
 # set FCP = '20231231' %}
 # cylc vip -n C384 -s 'ATMRES="C384"' ~/REPLAY_ICS/
-{% set ATMRES = ATMRES | default("C192") %}
+{% set ATMRES = ATMRES | default("C384") %}
 {% set C96_REPLAY = False %}
 {% set MAIL_ADDRESS = "neil.barton@noaa.gov" %}
 {% set DEBUG_Q = False %}
@@ -33,7 +33,7 @@
 
 {% if ATMRES == "C384" %}
 {% set ICP = '20201223' %}
-{% set FCP = '20231231' %}
+{% set FCP = '20251231' %}
 # Start at 19940916 DATES = "P1D"
 # Full Set
 # 20111001 - 20120131
@@ -42,10 +42,11 @@
 # Miniset
 # 20180104 - 20180222
 # 20180802 - 20180920
-{% set DATES = "P1D" %}
+#{% set DATES = "P1D" %}
+{% set DATES = "R1/20240815T0000Z" %}
 {% set OCNRES = "mx025" %}
 {% set MODELS = "ATM, OCN, ICE, WAV, MED" %}
-{% set POST_MODELS = "AER, ICE, WAV, MED" %}
+{% set POST_MODELS = "ICE, WAV, MED" %}
 {% endif %}
 
 {% if ATMRES == "C192" %}
@@ -53,9 +54,9 @@
 {% set FCP = '20251231' %}
 {% set OCNRES = "mx025" %}
 {% set DEBUG_Q = False %}
-{% set MODELS = "ATM, OCN, ICE, WAV" %}
-{% set POST_MODELS = "ICE, SFC, WAV" %}
-{% set DATES = "R1/20250413T0000Z" %}
+{% set MODELS = "ATM, OCN, ICE" %}
+{% set POST_MODELS = "ICE" %}
+{% set DATES = "R1/20240815T0000Z" %}
 #"19940501T0000Z/P1Y,19941101T0000Z/P1Y" %}
 {% endif %}
 

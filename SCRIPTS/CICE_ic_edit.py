@@ -23,7 +23,10 @@ parser.add_argument('-f', '--file', action = 'store', nargs = 1, \
 args = parser.parse_args()
 infile = args.file[0]
 print(infile)
-dat = xr.open_dataset(infile)
+ds_res = xr.open_dataset(infile)
+sic = ds_res['aicen'].sum(axis = 0)
+#from matplotlib import pyplot as plt
+#plt.imshow(sic, origin = 'lower'); plt.colorbar(); plt.show()
 
 ############
 # remove ice variables over land
@@ -34,35 +37,34 @@ if not os.path.exists(mask_file):
     response = requests.get(raw_url)
     with open(mask_file, 'wb') as f:
         f.write(response.content)
-d = xr.open_dataset(mask_file)
-d = d['tmask']
-d = d.broadcast_like(dat['aicen'])
+ds_mask = xr.open_dataset(mask_file)
+mask = ds_mask['tmask']
+mask = mask.broadcast_like(ds_res['aicen'])
+
 print('Checking for ice values over land points')
 vs = ['aicen', 'vicen', 'vsnon', 'Tsfcn']
 for v in vs:
-    test = dat[v].where(d == 0)
+    test = ds_res[v].where(mask == 0)
     if test.max().values != 0 or test.min().values != 0:
         print(' ', v, 'has non zero values over land, setting these values to zero')
-    dat[v] = dat[v].where(d == 1, 0)
+    ds_res[v] = ds_res[v].where(mask != 0, 0)
 
 ############
 # remove ice and snow where there is no ice
-d = dat['aicen'].sum(axis = 0)
 vs = ['vicen', 'vsnon']
-d = d.broadcast_like(dat['aicen'])
+sic = sic.broadcast_like(ds_res['aicen'])
 print('Checking for ice values at grid points of aicen.sum() values of zero')
 for v  in vs:
-    test = dat[v].where(d == 0)
+    test = ds_res[v].where(sic == 0)
     if test.max().values != 0 or test.min().values != 0:
         print(' ', v, 'has non zero values, setting these values to zero')
-    dat[v] = dat[v].where(d != 0, 0)
-    test = dat[v].where(d == 0)
+    ds_res[v] = ds_res[v].where(sic != 0, 0)
 
 #########################
 # save file
 new_file = infile.split('.nc')[0] + '_new.nc'
 if os.path.exists(new_file):
     os.remove(new_file)
-dat.to_netcdf(new_file)
+ds_res.to_netcdf(new_file)
 print('SAVED: ' + new_file)
 

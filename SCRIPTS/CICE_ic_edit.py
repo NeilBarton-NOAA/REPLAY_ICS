@@ -13,6 +13,7 @@
 import argparse
 import os
 import requests
+import numpy as np
 import xarray as xr
 
 ################################################
@@ -49,6 +50,8 @@ for v in vs:
         print(' ', v, 'has non zero values over land, setting these values to zero')
     ds_res[v] = ds_res[v].where(mask != 0, 0)
 
+#plt.imshow(sic - ds_res['aicen'].sum(axis = 0), origin = 'lower'); plt.colorbar(); plt.show()
+
 ############
 # remove ice and snow where there is no ice
 vs = ['vicen', 'vsnon']
@@ -59,6 +62,35 @@ for v  in vs:
     if test.max().values != 0 or test.min().values != 0:
         print(' ', v, 'has non zero values, setting these values to zero')
     ds_res[v] = ds_res[v].where(sic != 0, 0)
+
+############
+# Removing ice values during when there are very low ice volumes
+val = 0.00001
+if ds_res['vicen'].min() < 0.00001:
+    print('Removing ice where where this is ice volume less than', val)
+    ds_res['aicen'] = ds_res['aicen'].where(ds_res['vicen'] > val, 0)
+
+############
+print('Change enthalpy where snow temperature is too high and change to zero where there is no snow')
+# Physical constnts in Icepack model
+c1, rhos, cp_ice = 1.0, 330.0, 2106. # Constant, density of snow (kg/m3), and specific heat capacity of ice (J/kg/K)
+Lsub, Lvap = 2.835e6, 2.501e6        # Latent heat of sublimation and vaporization (J/kg)
+Lfresh = Lsub - Lvap                 # Latent heat of fusion for fresh snow (J/kg)
+rnslyr, puny = 1.0, 1.0E-012         # snow layer thickness parameter and number to aviod singularity
+
+# icepack formulate for snow temperature from enthalpy
+A = c1 / (rhos * cp_ice) 
+B = Lfresh / cp_ice
+zTsn = A * ds_res['qsno001'] + B
+
+# icepack formula for max snow tempature
+Tmax = -ds_res['qsno001'] * puny * rnslyr / (rhos * cp_ice * ds_res['vsnon'])
+
+# enthlapy at max snow temp
+Qmax = rhos * cp_ice * (Tmax - Lfresh / cp_ice)
+
+# update snow enthalpy
+ds_res['qsno001'] = xr.where((ds_res['vsnon'] > 0) & (zTsn > Tmax), Qmax, ds_res['qsno001'])
 
 #########################
 # save file

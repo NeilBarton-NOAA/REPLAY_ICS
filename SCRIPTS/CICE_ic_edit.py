@@ -53,6 +53,13 @@ for v in vs:
 #plt.imshow(sic - ds_res['aicen'].sum(axis = 0), origin = 'lower'); plt.colorbar(); plt.show()
 
 ############
+# Removing ice values during when there are very low ice volumes
+val = 0.00001
+if ds_res['vicen'].min() < 0.00001:
+    print('Removing ice where where this is ice volume less than', val)
+    ds_res['aicen'] = ds_res['aicen'].where(ds_res['vicen'] > val, 0)
+
+############
 # remove ice and snow where there is no ice
 vs = ['vicen', 'vsnon']
 sic = sic.broadcast_like(ds_res['aicen'])
@@ -62,13 +69,6 @@ for v  in vs:
     if test.max().values != 0 or test.min().values != 0:
         print(' ', v, 'has non zero values, setting these values to zero')
     ds_res[v] = ds_res[v].where(sic != 0, 0)
-
-############
-# Removing ice values during when there are very low ice volumes
-val = 0.00001
-if ds_res['vicen'].min() < 0.00001:
-    print('Removing ice where where this is ice volume less than', val)
-    ds_res['aicen'] = ds_res['aicen'].where(ds_res['vicen'] > val, 0)
 
 ############
 print('Change enthalpy where snow temperature is too high and change to zero where there is no snow')

@@ -1,6 +1,6 @@
 set -xu
 SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
-run=sfs
+run=${run:-sfs}
 GLOBUS=F
 ############
 # number of ensembles
@@ -27,10 +27,11 @@ if [[ ${LAND_VER} == "HR3" ]]; then
     IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
 fi
 if [[ ${ATMRES} == "C384" ]]; then
-    DTG_TEXT=${dtg:0:8}.030000 # restarts valid at 
+    DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
 else
-    DTG_TEXT=${dtg:0:8}.000000 # restarts valid at 
+    DTG_TEXT=${dtg:0:8}.000000 # restarts valid at
 fi
+DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
 IC_DIR=${ICDIR:-$IC_DIR}
 mkdir -p ${IC_DIR}
 
@@ -56,6 +57,7 @@ else
     dir_atmos_perturbations=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem001/analysis/atmos
     dir_ocean_perturbations=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem001/analysis/ocean
 fi
+dir_atmos=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/atmos/restart
 
 
 ############
@@ -66,7 +68,9 @@ aws_C192sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${
 
 ########################
 # CODE Directory for chgres and aerosol tools
-CODE_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/CODE/REPLAY
+machine=$(uname -n)
+[[ ${machine} == gaea* ]] && CODE_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/CODE/REPLAY && m_target=gaeac6
+[[ ${machine} == hercules* ]] && CODE_DIR=/work/noaa/marine/${USER}/CODE/REPLAY && m_target=hercules
 
 ########################
 # compiler used for chgres

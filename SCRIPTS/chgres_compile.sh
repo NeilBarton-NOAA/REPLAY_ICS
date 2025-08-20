@@ -9,16 +9,17 @@ source ${SCRIPT_DIR}/defaults.sh
 CODE=https://github.com/ufs-community/UFS_UTILS.git
 HASH=develop
 export compiler=${chgres_compiler}
-export target=gaeac6
+
+export target=${m_target}
 mkdir -p ${CODE_DIR} && cd ${CODE_DIR}
 
-git clone ${CODE} 
+git clone ${CODE}
 cd ${CODE_DIR}/UFS_UTILS
 git checkout ${HASH}
 
 # fix files
 cd ${CODE_DIR}/UFS_UTILS/fix
-bash link_fixdirs.sh emc gaeac6
+bash link_fixdirs.sh emc ${m_target}
 
 # compile
 cd ${CODE_DIR}/UFS_UTILS

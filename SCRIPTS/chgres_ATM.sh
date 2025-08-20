@@ -8,20 +8,23 @@ dir=${dir_atmos}
 export DATA=${dir}
 SRC_ATMRES="C384"
 SRC_OCNRES="mx025"
-
 cd ${DATA}
 ########################
 # chgres_cube.sh options
 export HOMEufs=${CODE_DIR}/UFS_UTILS
 export INPUT_TYPE="restart"
-export COMIN=${dir} 
+export COMIN=${dir}
 export CDATE=${dtg:0:8}03
 export ocn=${OCNRES:2:3}
 export VCOORD_FILE="${HOMEufs}/fix/am/global_hyblev.l128C.txt"
-export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
-export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
-export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
-export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
+#export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
+export MOSAIC_FILE_INPUT_GRID="/work/noaa/marine/nbarton/CODE/gw_develop_NOAA-EMC/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
+#export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
+export MOSAIC_FILE_TARGET_GRID="/work/noaa/marine/nbarton/CODE/gw_develop_NOAA-EMC/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
+#export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
+export OROG_DIR_INPUT_GRID="/work/noaa/marine/nbarton/CODE/gw_develop_NOAA-EMC/fix/orog/${SRC_ATMRES}"
+#export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
+export OROG_DIR_TARGET_GRID="/work/noaa/marine/nbarton/CODE/gw_develop_NOAA-EMC/fix/orog/${ATMRES}"
 #export TRACERS_TARGET='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel","bc2","bc1","dms","dust1","dust2","dust3","dust4","dust5","seas1","seas2","seas3","seas4","seas5","oc2","oc1","so2","so4","msa"'
 export TRACERS_TARGET='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
 #"bc2","bc1","dms","dust1","dust2","dust3","dust4","dust5","seas1","seas2","seas3","seas4","seas5","oc2","oc1","so2","so4","msa"'
@@ -77,7 +80,7 @@ export OROG_FILES_TARGET_GRID=${F}
 # modules
 module purge
 module use ${HOMEufs}/modulefiles
-module load build.gaeac6.${compiler}
+module load build.${m_target}.${compiler}
 
 mkdir -p ${COMIN}/CHGRES
 cd ${COMIN}/CHGRES

@@ -19,6 +19,8 @@ fi
 LAND_VER=HR4
 if [[ ${ATMRES} == "C384" ]]; then
     IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/${LAND_VER}/${ATMRES}${OCNRES}/${dtg}
+elif [[ ${SCOUT_RUN} == "True" ]]; then
+    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/SCOUT_RUN/${ATMRES}${OCNRES}
 else
     IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/${LAND_VER}/${ATMRES}${OCNRES}
 fi
@@ -32,6 +34,8 @@ else
     DTG_TEXT=${dtg:0:8}.000000 # restarts valid at
 fi
 DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
+
+
 IC_DIR=${ICDIR:-$IC_DIR}
 mkdir -p ${IC_DIR}
 
@@ -62,14 +66,21 @@ dir_atmos=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/
 
 ############
 # Replay Restarts
-# https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
-aws_C192sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${dtg}"
+if [[ ${SCOUT_RUN} == True ]]; then
+    # SFS Scout Run
+    aws_path="https://noaa-reanalyses-pds.s3.amazonaws.com/analyses/scout_runs/3dvar_coupledreanl_scoutrun_v1/${dtg_precycle}/gdas.${dtg_precycle:0:8}/18"
+    aws_C192sfc=""
+else
+    # GEFSv13 Replay
+    # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
+    aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
+    aws_C192sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${dtg}"
+fi
 
 ########################
 # CODE Directory for chgres and aerosol tools
 machine=$(uname -n)
-[[ ${machine} == gaea* ]] && CODE_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/CODE/REPLAY && m_target=gaeac6
+[[ ${machine} == gaea* ]] || [[ ${machine} == dtn* ]] || [[ ${machine} == c6* ]] && CODE_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/CODE/REPLAY && m_target=gaeac6
 [[ ${machine} == hercules* ]] && CODE_DIR=/work/noaa/marine/${USER}/CODE/REPLAY && m_target=hercules
 
 ########################

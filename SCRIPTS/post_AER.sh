@@ -79,11 +79,7 @@ fi
 
 ###########
 # add data to fv_core files
-if [[ ${C96_REPLAY} == 'True' ]]; then
-    ATMRES_POSTAER=C96
-else
-    ATMRES_POSTAER=C384
-fi
+ATMRES_POSTAER=C384
 for i in {1..6}; do 
     if [[ ! -f ${DTG_TEXT}.fv_tracer.res.tile${i}.nc.old ]]; then
     echo "Adding aerosols to ${DTG_TEXT}.fv_tracer.res.tile${i}.nc"

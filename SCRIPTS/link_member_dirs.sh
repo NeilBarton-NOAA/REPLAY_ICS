@@ -7,11 +7,7 @@ source ${SCRIPT_DIR}/defaults.sh
 LINK_MEMBERS () {
 dir=${1}
 NENS=${2}
-if [[ ${LAND_VER} == HR4 ]]; then
-    mem000_dir="../../../../mem${dir##*mem}"
-else
-    mem000_dir="../../mem${dir##*mem}"
-fi 
+mem000_dir="../../../../mem${dir##*mem}"
 for i in $(seq 1 ${NENS}); do
     mem=$(printf "%03d" ${i})   
     dir_mem=${dir/mem000/mem${mem}} 
@@ -24,10 +20,11 @@ for i in $(seq 1 ${NENS}); do
 done
 }
 
-[[ -d ${dir_atmos} ]] && LINK_MEMBERS ${dir_atmos} ${NENS}
-[[ -d ${dir_ocean} ]] && LINK_MEMBERS ${dir_ocean} ${NENS}
-[[ -d ${dir_ice} ]] && LINK_MEMBERS ${dir_ice} ${NENS}
-[[ -d ${dir_wave} ]] && LINK_MEMBERS ${dir_wave} ${NENS}
-[[ -d ${dir_med} ]] && LINK_MEMBERS ${dir_med} ${NENS}
+[[ -d ${dir_restart_atmos} ]] && LINK_MEMBERS ${dir_restart_atmos} ${NENS}
+[[ -d ${dir_input_atmos} ]] && LINK_MEMBERS ${dir_input_atmos} ${NENS}
+[[ -d ${dir_restart_ocean} ]] && LINK_MEMBERS ${dir_restart_ocean} ${NENS}
+[[ -d ${dir_restart_ice} ]] && LINK_MEMBERS ${dir_restart_ice} ${NENS}
+[[ -d ${dir_restart_wave} ]] && LINK_MEMBERS ${dir_restart_wave} ${NENS}
+[[ -d ${dir_restart_med} ]] && LINK_MEMBERS ${dir_restart_med} ${NENS}
 
 echo "Linked ICs to member directories"

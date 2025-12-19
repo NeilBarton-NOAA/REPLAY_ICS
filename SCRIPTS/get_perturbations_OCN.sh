@@ -3,9 +3,10 @@ set -u
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-inc_dir=${dir_ocean_perturbations}/perturbation
+inc_dir=${dir_inc_ocean}/perturbation
+inc_dir=${inc_dir/mem000/mem001}
 mkdir -p ${inc_dir} && cd ${inc_dir}
-echo "DOWNLOADING OCN INCREMENT data to ${inc_dir}"
+echo "DOWNLOADING OCN IC PERTURBATION TO ${inc_dir}"
 
 ############
 # Ocean perturbation files on hpss
@@ -15,7 +16,7 @@ hpss_ocn_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/oras5_ocn/en
 if (( ${dtg:0:4} > 2023 )); then
     year=$(( ${dtg:0:4} - 10 ))
     dtg=${year}${dtg:4:8}
-    echo "Year is before 2024, grabbing 10 years before ${dtg}"
+    echo "Year is after 2024, grabbing 10 years before ${dtg}"
 fi
 file_name=${hpss_ocn_increment_dir}/ocn_perts_for_SFS_${OCNRES}_${dtg:0:6}0100.tar
 echo "DOWNLOADING: ${file_name}"
@@ -28,10 +29,11 @@ fi
 
 ########################
 # copy increment files to directories
+orig_dir=${inc_dir}
 for n in $( seq 1 ${LN} ); do
     # copy file to correct directory
     mem=$(printf "%03d" ${n})
-    dir_mem=${dir_ocean_perturbations/mem001/mem${mem}}
+    dir_mem=${orig_dir/mem001/mem${mem}}
     mkdir -p ${dir_mem}
     pert_file=${inc_dir}/??????????/mem${mem}_pert.nc
     inc_file=${dir_mem}/${DTG_TEXT}.mom6_perturbation.nc
@@ -44,10 +46,10 @@ for n in $( seq 1 ${LN} ); do
 done
 
 if [[ ${LN} == 4 ]]; then
-    dir_mem=${dir_ocean_perturbations/mem001/mem005}
-    dir_mem001=${dir_ocean_perturbations}
+    dir_mem=${dir_inc_ocean/mem001/mem005}
+    dir_mem001=${dir_inc_ocean}
     mkdir -p ${dir_mem} && cd ${dir_mem}
     cp ${dir_mem001}/${DTG_TEXT}.mom6_perturbation.nc .
 fi
 rm -r ${inc_dir}
-echo 'OCN perturbation files downloaded and put into mem directories'
+echo 'OCN IC PERTURBATION FILES DOWLOANDED AND PUT INTO MEM DIRS'

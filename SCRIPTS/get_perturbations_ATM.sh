@@ -3,15 +3,15 @@ set -u
 dtg=${1}
 SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-inc_dir=${dir_atmos_perturbations}/perturbation
+inc_dir=${dir_inc_atmos}/perturbation
+inc_dir=${inc_dir/mem000/mem001}
 mkdir -p ${inc_dir} && cd ${inc_dir}
 
-echo "DOWNLOADING ATM INCREMENT data to ${inc_dir}"
-
+echo "DOWNLOADING ATM IC PERTURBATIONS TO ${inc_dir}"
 if (( ${dtg:0:4} > 2024 )); then
     year=$(( ${dtg:0:4} - 10 ))
     fdtg=${year}${dtg:4:8}
-    echo "Year is before 2025, grabbing 10 years before ${fdtg}"
+    echo "Year after before 2025, grabbing 10 years before ${fdtg}"
 else
     fdtg=${dtg}
 fi
@@ -28,10 +28,8 @@ if [[ ${ATMRES} == "C96" ]]; then
     file_name=${hpss_atm_increment_dir}/atm_perts_for_SFS_${ATMRES}_${EY}${dtg:3:3}01.tar
 else # C192 or C384
     hpss_atm_increment_dir=/ESRL/BMC/gsienkf/Permanent/UFS_replay_input/era5/C384_perts/${dtg:0:4}
-    #hpss_atm_increment_dir=/ESRL/BMC/gsienkf/2year/whitaker/era5/C384ensperts
-    if [[ ${ATMRES} == "C192" ]]; then
+    if [[ "${ATMRES}" == "C192" ]]; then
         file_name=$( hsi -q ls -l ${hpss_atm_increment_dir}/C384_era5anl_${fdtg:0:6}*03_inc.tar 2>&1 | grep C384_era5anl | head -n 1 | awk '{print $9}' )
-        NENS=10
         file_name=${hpss_atm_increment_dir}/${file_name}
     else
         if [[ ${NENS} == 10 ]]; then
@@ -64,10 +62,11 @@ fi
 
 ########################
 # copy increment files to directories
+orig_dir=${inc_dir}
 for n in $( seq 1 ${NENS}); do
     # copy file to correct directory
     mem=$(printf "%03d" ${n})
-    dir_mem=${dir_atmos_perturbations/mem001/mem${mem}}
+    dir_mem=${orig_dir/mem001/mem${mem}}
     mkdir -p ${dir_mem}
     if [[ ${NENS} == 10 ]]; then
         i=$(( n - 1 ))
@@ -89,5 +88,5 @@ for n in $( seq 1 ${NENS}); do
 done
 
 rm -r ${inc_dir}
-echo 'ATM perturbation files downloaded and put into mem directories'
+echo 'ATM IC PERTURBATION FILES DOWNLOADED AND PUT INTO MEM DIRECTORIES'
 exit 0

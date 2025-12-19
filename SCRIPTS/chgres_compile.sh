@@ -3,8 +3,6 @@ set -xu
 # compiles chgres program
 SCRIPT_DIR=$(dirname "$0")/SCRIPTS
 dtg=2017100100 # dummy variable
-ATMRES=DUMMY
-OCNRES=DUMMY
 source ${SCRIPT_DIR}/defaults.sh
 CODE=https://github.com/ufs-community/UFS_UTILS.git
 HASH=develop

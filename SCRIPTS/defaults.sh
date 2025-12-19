@@ -1,90 +1,66 @@
 set -xu
+############
+# defaults
 SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
+IC_SRC=${IC_SRC:-"SCOUT"} #CPC, GFS
+ATMRES=${ATMES:-"C192"}
+OCNRES=${OCN:-"mx025"}
 run=${run:-sfs}
 GLOBUS=F
-############
-# number of ensembles
-dow=$(date -d "${dtg:0:8}" +%A)
-if [[ ${dow} == "Thursday" ]] || [[ ${dow} == "Monday" ]]; then
-    NENS=10
-else
-    NENS=5
-fi
-if [[ ${ATMRES} != "C384" ]]; then
-    NENS=10
-fi
+dtg_minus6=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 6 hours ago" +%Y%m%d%H)
+dtg_minus3=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 3 hours ago" +%Y%m%d%H)
+NENS=10
 
 ############
-# time stamp, Noah-MP land version, and IC directory
-LAND_VER=HR4
-if [[ ${ATMRES} == "C384" ]]; then
-    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/${LAND_VER}/${ATMRES}${OCNRES}/${dtg}
-elif [[ ${SCOUT_RUN} == "True" ]]; then
-    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/SCOUT_RUN/${ATMRES}${OCNRES}
-else
-    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/${LAND_VER}/${ATMRES}${OCNRES}
-fi
-if [[ ${LAND_VER} == "HR3" ]]; then
-    LAND_VER=HR3
-    IC_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/ICs/REPLAY_ICs/${ATMRES}${OCNRES}
-fi
-if [[ ${ATMRES} == "C384" ]]; then
-    DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
-else
-    DTG_TEXT=${dtg:0:8}.000000 # restarts valid at
-fi
-DTG_TEXT=${dtg:0:8}.030000 # restarts valid at
-
-
-IC_DIR=${ICDIR:-$IC_DIR}
-mkdir -p ${IC_DIR}
+# scrath dir based in machine
+machine=$(uname -n)
+export chgres_compiler=intel
+case ${machine} in 
+    gaea* | dtn* | c6*)
+        SCRATCH_DIR=/gpfs/f6/sfs-emc/scratch/${USER}
+        m_target=gaeac6
+        ;;
+    hercules*)
+        SCRATCH_DIR=/work/noaa/marine/${USER}
+        m_target=hercules
+        ;;
+    ufe* | u*c*)
+        SCRATCH_DIR=/scratch4/NCEPDEV/stmp/${USER}
+        m_target=ursa
+        export chgres_compiler=intelllvm
+        ;;
+    *)
+        echo "FATAL: machine unknown: ${machine}" && exit 1
+        ;;
+esac
+CODE_DIR=${SCRATCH_DIR}/CODE/IC_PROCESSING
+IC_DIR=${SCRATCH_DIR}/ICs/SRv1.01/${ATMRES}${OCNRES} #Scout Run
+IC_DIR=${ICDIR:-$IC_DIR} && mkdir -p ${IC_DIR}
 
 ###########
-# directories for each component
-dtg_precycle=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 6 hours ago" +%Y%m%d%H)
-if [[ ${LAND_VER} == HR3 ]]; then
-    dir_atmos=${IC_DIR}/${dtg}/mem000/atmos
-    dir_ocean=${IC_DIR}/${dtg}/mem000/ocean
-    dir_ice=${IC_DIR}/${dtg}/mem000/ice
-    dir_wave=${IC_DIR}/${dtg}/mem000/wave
-    dir_med=${IC_DIR}/${dtg}/mem000/med
-else
-    if [[ ${ATMRES} == "C384" ]]; then
-        dir_atmos=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/atmos/restart
-    else
-        dir_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/model/atmos/input
-    fi
-    dir_ocean=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/ocean/restart
-    dir_ice=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/ice/restart
-    dir_wave=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/wave/restart
-    dir_med=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/med/restart
-    dir_atmos_perturbations=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem001/analysis/atmos
-    dir_ocean_perturbations=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem001/analysis/ocean
-fi
-dir_atmos=${IC_DIR}/${run}.${dtg_precycle:0:8}/${dtg_precycle:8:2}/mem000/model/atmos/restart
-
+# download directories for each component
+dir_restart_atmos=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/atmos/restart
+dir_restart_ocean=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/ocean/restart
+dir_restart_ice=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/ice/restart
+dir_restart_wave=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/wave/restart
+dir_restart_med=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/med/restart
+dir_input_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/model/atmos/input
+dir_inc_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/analysis/atmos
+dir_inc_ocean=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/analysis/ocean
 
 ############
-# Replay Restarts
-if [[ ${SCOUT_RUN} == True ]]; then
-    # SFS Scout Run
-    aws_path="https://noaa-reanalyses-pds.s3.amazonaws.com/analyses/scout_runs/3dvar_coupledreanl_scoutrun_v1/${dtg_precycle}/gdas.${dtg_precycle:0:8}/18"
-    aws_C192sfc=""
-else
-    # GEFSv13 Replay
-    # https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-    aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
-    aws_C192sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${dtg}"
-fi
-
-########################
-# CODE Directory for chgres and aerosol tools
-machine=$(uname -n)
-[[ ${machine} == gaea* ]] || [[ ${machine} == dtn* ]] || [[ ${machine} == c6* ]] && CODE_DIR=/gpfs/f6/sfs-emc/scratch/${USER}/CODE/REPLAY && m_target=gaeac6
-[[ ${machine} == hercules* ]] && CODE_DIR=/work/noaa/marine/${USER}/CODE/REPLAY && m_target=hercules
+# SFS Scout Run
+# https://noaa-reanalyses-pds.s3.amazonaws.com/index.html
+aws_path="https://noaa-reanalyses-pds.s3.amazonaws.com/analyses/scout_runs/3dvar_coupledreanl_scoutrun_v1.01"
+DTG_TEXT=${dtg_minus3:0:8}.${dtg_minus3:8:10}0000 
 
 ########################
 # compiler used for chgres
-export chgres_compiler=intel
 export APRUN="srun"
+
+########################
+# GEFSv13 Replay
+# https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
+# aws_path="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
+# aws_C192sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${dtg}"
 

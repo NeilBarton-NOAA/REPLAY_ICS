@@ -17,7 +17,6 @@ if [[ ${IC_SRC} == "GFS" ]]; then
            enkfgdas_restarta_grp3 enkfgdas_restartb_grp3"
 elif [[ ${IC_SRC} == "REPLAY" ]]; then
     files="ATM OCN ICE"
-    files="ICE"
 fi
 
 ####################################

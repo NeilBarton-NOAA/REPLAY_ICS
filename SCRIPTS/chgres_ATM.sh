@@ -1,5 +1,7 @@
 #!/bin/sh
 # https://noaa-emcufs-utils.readthedocs.io/en/latest/
+# for replay data
+#cp /scratch3/NCEPDEV/global/role.glopara/fix/orog/20230615/C384.mx025/*oro_data* .
 set -u
 dtg=${1}
 SRC_ATMRES=${2:-"C192"}

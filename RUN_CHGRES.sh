@@ -1,18 +1,20 @@
 #!/bin/bash
 set -u
 # Run CHGRES for ICs
-dtg=${1:-2025070100}
+dtg=${1:-2025010100}
 export DEBUG=F
 export IC_SRC=GFS 
+export IC_SRC=REPLAY
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 BACKGROUND_JOB=F
 source ${TOPDIR}/MACHINE/config.sh
 source ${TOPDIR}/SCRIPTS/defaults.sh
-
+models="ATM"
 if [[ ${IC_SRC} == "GFS" ]]; then
-    models="ATM"
     members=$( ls -d ${dir_restart_atmos%/mem000*}/mem*/ | grep -oP '(?<=mem)\d{3}')
+elif [[ ${IC_SRC} == "REPLAY" ]]; then
+    members="000"
 fi
 for model in ${models}; do
     for mem in ${members}; do
@@ -20,7 +22,7 @@ for model in ${models}; do
         NTASKS=12
         WALLTIME="00:30:00"
         source ${TOPDIR}/MACHINE/config.sh
-        if [[ ${mem} == "000" ]]; then
+        if [[ ${mem} == "000" && ${IC_SRC} == GFS ]]; then
             ATMRES="C1152"
         else
             ATMRES="C384"

@@ -40,7 +40,7 @@ if [[ ${IC_SRC} == "SCOUT" ]]; then
     SCOUT_VERSION=${SCOUT_VERSION:-'SFv1.01'}
     export IC_DIR=${SCRATCH_DIR}/ICs/${SCOUT_VERSION}/${ATMRES}${OCNRES} 
 else
-    export IC_DIR=${SCRATCH_DIR}/ICs/GFS/${ATMRES}${OCNRES} 
+    export IC_DIR=${SCRATCH_DIR}/ICs/${IC_SRC}/${ATMRES}${OCNRES} 
 fi
 export IC_DIR=${ICDIR:-$IC_DIR} && mkdir -p ${IC_DIR}
 

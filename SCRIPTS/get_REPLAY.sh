@@ -20,7 +20,7 @@ if [[ ${model} == "ATM" ]]; then
     for tile in $(seq 1 6); do
         file_in=${f}.tile${tile}.nc 
         file_out=${DTG_TEXT}.${f}.tile${tile}.nc
-        if [[ ${f} == "sfc_data" ]] && [[ "${dtg}" -ge "1994050100" && "${DTG}" -le "2023110106" ]]; then
+        if [[ ${f} == "sfc_data" ]] && [[ "${dtg}" -ge "1994050100" && "${dtg}" -le "2023110106" ]]; then
             WGET_AWS ${aws_path_sfc}/${file_in} ${file_out} 
             [[ $? > 0 ]] && echo "FATAL in download" && exit 1
         else

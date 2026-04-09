@@ -28,7 +28,7 @@ else # C192 or C384
 fi
 
 echo "htar -xvf ${file_name}"
-#htar -xvf ${file_name}
+htar -xvf ${file_name}
 if (( ${?} > 0 )); then
     echo 'ERROR in htar, file likely does not exist'
     echo '  file_name:', ${file_name}

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 # Run CHGRES for ICs
-dtg=${1:-2025070100}
+dtg=${1:-2025010100}
 export DEBUG=F
 export IC_SRC=GFS 
 export TOPDIR=${PWD}

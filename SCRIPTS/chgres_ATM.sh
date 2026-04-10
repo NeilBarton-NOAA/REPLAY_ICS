@@ -1,12 +1,12 @@
 #!/bin/sh
 # https://noaa-emcufs-utils.readthedocs.io/en/latest/
 # for replay data
-#cp /scratch3/NCEPDEV/global/role.glopara/fix/orog/20230615/C384.mx025/*oro_data* .
 set -u
 dtg=${1}
 SRC_ATMRES=${2:-"C192"}
 SRC_OCNRES=${3:-"mx025"}
 MEM=${4:-'000'}
+IC_SRC=${IC_SRC:-GFS}
 source ${SCRIPT_DIR}/defaults.sh
 DTG_TEXT=${dtg_minus3:0:8}.${dtg_minus3:8:10}0000 
 compiler=${chgres_compiler}
@@ -19,6 +19,21 @@ echo ${DATA}
 ########################
 # chgres_cube.sh options
 export HOMEufs=${CODE_DIR}/UFS_UTILS
+set -x
+########################
+# REPLAY ICs need different ORO files
+if [[ ${IC_SRC} == 'REPLAY' ]]; then
+    set -x
+    #cp /scratch3/NCEPDEV/global/role.glopara/fix/orog/20230615/C384.mx025/*oro_data* .
+    OROG_REPLAY=${HOMEufs}/fix/orog_replay
+    if [[ ! -d ${OROG_REPLAY} ]]; then
+        OROG_DIR=$(readlink ${HOMEufs}/fix/orog)
+        cp -r ${OROG_DIR} ${OROG_REPLAY}
+        cp ${OROG_DIR}/../20230615/C384.mx025/*oro_data* ${OROG_REPLAY}/C384
+    fi
+fi
+set +x
+########################
 # needed for IC_SRC == "restart"
 ORO_SRC=() && CORE_SRC=() && TRACER_SRC=() && SFC_SRC=() && ORO_DES=()
 for i in {1..6}; do
@@ -44,10 +59,17 @@ export COMIN=${dir}
 export CDATE=${dtg}
 export ocn=${OCNRES:2:3}
 export VCOORD_FILE="${HOMEufs}/fix/am/global_hyblev.l128C.txt"
-export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
-export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
-export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
-export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
+if [[ ${IC_SRC} == 'REPLAY' ]]; then
+    export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog_TEST/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
+    export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog_TEST/${ATMRES}/${ATMRES}_mosaic.nc"
+    export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog_TEST/${SRC_ATMRES}"
+    export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog_TEST/${ATMRES}"
+else
+    export MOSAIC_FILE_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}/${SRC_ATMRES}_mosaic.nc"
+    export MOSAIC_FILE_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}/${ATMRES}_mosaic.nc"
+    export OROG_DIR_INPUT_GRID="${HOMEufs}/fix/orog/${SRC_ATMRES}"
+    export OROG_DIR_TARGET_GRID="${HOMEufs}/fix/orog/${ATMRES}"
+fi
 export TRACERS_INPUT='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
 export TRACERS_TARGET=${TRACERS_INPUT}
 # from nesmio files?

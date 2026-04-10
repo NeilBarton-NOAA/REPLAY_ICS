@@ -33,7 +33,9 @@ fi
 for f in ${files}; do
     file_in=${f}.nc
     if [[ ${model} == 'ICE' ]]; then
-        file_out=${DTG_TEXT}.cice_model.res.nc
+        file_out=${DTG_TEXT_DES}.cice_model.res.nc
+    elif [[ ${model} == 'OCN' ]]; then
+        file_out=${DTG_TEXT_DES}.${f}.nc
     else
         file_out=${DTG_TEXT}.${f}.nc
     fi
@@ -43,6 +45,8 @@ if [[ ${model} == 'ICE' ]]; then
     ${SCRIPT_DIR}/CICE_ic_edit.py -f ${file_out}
     echo "MOVING ${file_out%.nc}_new.nc" "${file_out}"
     mv "${file_out%.nc}_new.nc" "${file_out}"
+    mask_file=$(dirname ${file_out})/tmask_mx025.nc
+    [[ -f ${mask_file} ]] && rm ${mask_file}
 fi
 
 echo "SUCCESSFULLY Downloaded ${model}"

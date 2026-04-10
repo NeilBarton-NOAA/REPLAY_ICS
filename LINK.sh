@@ -1,7 +1,7 @@
 #!/bin/bash
 set -u
 # Get ICs for GFS or CPC
-dtg=${1:-2025010100}
+dtg=${1:-2025020100}
 export IC_SRC=REPLAY
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS

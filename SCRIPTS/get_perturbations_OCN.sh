@@ -5,7 +5,7 @@
 #   file_name=${hpss_ocn_increment_dir}/ocn_perts_for_SFS_${OCNRES}_${dtg:0:6}0100.tar
 set -u
 dtg=${1}
-SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR=${SCRIPT_DIR:-$(dirname "$0")}
 source ${SCRIPT_DIR}/defaults.sh
 source ${SCRIPT_DIR}/functions.sh
 echo "DOWNLOADING OCN IC PERTURBATION"

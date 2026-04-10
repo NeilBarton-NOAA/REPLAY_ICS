@@ -2,8 +2,8 @@
 set -u
 # Run CHGRES for ICs
 dtg=${1:-2025010100}
+export IC_SRC=${2:-GFS} 
 export DEBUG=F
-export IC_SRC=GFS 
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 source ${TOPDIR}/MACHINE/config.sh

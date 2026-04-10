@@ -23,8 +23,8 @@ set -x
 ########################
 # REPLAY ICs need different ORO files
 if [[ ${IC_SRC} == 'REPLAY' ]]; then
-    set -x
-    #cp /scratch3/NCEPDEV/global/role.glopara/fix/orog/20230615/C384.mx025/*oro_data* .
+    # to fix mismatch in surface files, copy old oro_data files
+    #   cp /scratch3/NCEPDEV/global/role.glopara/fix/orog/20230615/C384.mx025/*oro_data* .
     OROG_REPLAY=${HOMEufs}/fix/orog_replay
     if [[ ! -d ${OROG_REPLAY} ]]; then
         OROG_DIR=$(readlink ${HOMEufs}/fix/orog)
@@ -32,7 +32,6 @@ if [[ ${IC_SRC} == 'REPLAY' ]]; then
         cp ${OROG_DIR}/../20230615/C384.mx025/*oro_data* ${OROG_REPLAY}/C384
     fi
 fi
-set +x
 ########################
 # needed for IC_SRC == "restart"
 ORO_SRC=() && CORE_SRC=() && TRACER_SRC=() && SFC_SRC=() && ORO_DES=()

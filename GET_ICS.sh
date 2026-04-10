@@ -1,9 +1,8 @@
 #!/bin/bash
 set -u
 # Get ICs for GFS or CPC
-dtg=${1:-2025020100}
-#export IC_SRC=GFS 
-export IC_SRC=REPLAY
+dtg=${1:-2026030100}
+export IC_SRC=${2:-GFS}
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 source ${TOPDIR}/MACHINE/config.sh

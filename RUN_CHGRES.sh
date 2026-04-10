@@ -2,10 +2,8 @@
 set -u
 # Run CHGRES for ICs
 dtg=${1:-2025020100}
-#dtg=${1:-2025010100}
+export IC_SRC=${2:-REPLAY}
 export DEBUG=F
-#export IC_SRC=GFS 
-export IC_SRC=REPLAY
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 BACKGROUND_JOB=F

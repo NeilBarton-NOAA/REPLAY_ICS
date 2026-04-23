@@ -6,45 +6,29 @@ IC_SRC=${IC_SRC:-"REPLAY"} # REPLAY, GFS, SCOUT
 ATMRES=${ATMRES:-"C192"}
 OCNRES=${OCNRES:-"mx025"}
 run=${run:-sfs}
-GLOBUS=F
-dtg_minus6=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 6 hours ago" +%Y%m%d%H)
-dtg_minus3=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 3 hours ago" +%Y%m%d%H)
-dtg_plus3=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 3 hours" +%Y%m%d%H)
-NENS=10
+NENS=${NENS:-10}
+source ${SCRIPT_DIR}/../MACHINE/config.sh
 
-############
-# scrath dir based in machine
-machine=$(uname -n)
-export chgres_compiler=intel
-case ${machine} in 
-    gaea* | dtn* | c6*)
-        SCRATCH_DIR=/gpfs/f6/sfs-emc/scratch/${USER}
-        m_target=gaeac6
-        ;;
-    hercules*)
-        SCRATCH_DIR=/work/noaa/marine/${USER}
-        m_target=hercules
-        ;;
-    ufe* | u*c*)
-        SCRATCH_DIR=/scratch4/NCEPDEV/stmp/${USER}
-        m_target=ursa
-        export chgres_compiler=intelllvm
-        ;;
-    *)
-        echo "FATAL: machine unknown: ${machine}" && exit 1
-        ;;
-esac
-
-CODE_DIR=${SCRATCH_DIR}/CODE/IC_PROCESSING
+# location of code and downloads
+CODE_DIR=${WORK_DIR}/CODE/IC_PROCESSING
 if [[ ${IC_SRC} == "SCOUT" ]]; then
     SCOUT_VERSION=${SCOUT_VERSION:-'SFv1.01'}
-    export IC_DIR=${SCRATCH_DIR}/ICs/${SCOUT_VERSION}/${ATMRES}${OCNRES} 
+    export IC_DIR=${WORK_DIR}/ICs/${SCOUT_VERSION}/${ATMRES}${OCNRES} 
 else
-    export IC_DIR=${SCRATCH_DIR}/ICs/${IC_SRC}/${ATMRES}${OCNRES} 
+    export IC_DIR=${WORK_DIR}/ICs/${IC_SRC}/${ATMRES}${OCNRES} 
 fi
 export IC_DIR=${ICDIR:-$IC_DIR} && mkdir -p ${IC_DIR}
 
-###########
+# dtg specific
+dtg_minus6=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 6 hours ago" +%Y%m%d%H)
+dtg_minus3=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 3 hours ago" +%Y%m%d%H)
+dtg_plus3=$(date -u -d"${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 3 hours" +%Y%m%d%H)
+
+# file prefix
+export DTG_TEXT=${dtg:0:8}.${dtg:8:10}0000 
+export DTG_TEXT_PLUS3=${dtg_plus3:0:8}.${dtg_plus3:8:10}0000 
+export DTG_TEXT_MINUS3=${dtg_minus3:0:8}.${dtg_minus3:8:10}0000 
+
 # download directories for each component
 export dir_restart_atmos=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/atmos/restart
 export dir_restart_ocean=${IC_DIR}/${run}.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem000/model/ocean/restart
@@ -55,41 +39,12 @@ export dir_input_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/model/atmos
 export dir_inc_atmos=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/analysis/atmos
 export dir_inc_ocean=${IC_DIR}/${run}.${dtg:0:8}/${dtg:8:2}/mem000/analysis/ocean
 
-############
-# files
+# restart files
 export restart_tile_files_atmos='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data sfc_data'
 export restart_nontile_files_atmos='ca_data fv_core.res'
 export restart_files_ocean='MOM.res MOM.res_1 MOM.res_2 MOM.res_3'
-############
-# GFS Retro Run
-#   Aug 30 2022 to Oct 10 2022
-#   Mar  1 2024 to Nov 30 2025
-#   Nov 20 2025 to Feb 28 2026 (near real time run)
-#   ICs may be on Mondays
-export hpss_path=/5year/NCEPDEV/emc-global/emc.glopara/*/GFSv17/retrov17*
 
-############
-# CPC ICs
-hpss_core_path=/Permanent/NCEPDEV/cpc-om/Wesley.Ebisuzaki/core/nemsio/ens_00Z
-glore_path=onc5 #(uce scp command)
-
-############
-# SFS Scout Run
-# https://noaa-reanalyses-pds.s3.amazonaws.com/index.html
-export aws_path_scout="https://noaa-reanalyses-pds.s3.amazonaws.com/analyses/scout_runs/3dvar_coupledreanl_scoutrun_v1.01"
-export DTG_TEXT_SRC=${dtg_plus3:0:8}.${dtg_plus3:8:10}0000 
-export DTG_TEXT_DES=${dtg:0:8}.${dtg:8:10}0000 
-
-export DTG_TEXT=${dtg_minus3:0:8}.${dtg_minus3:8:10}0000 
-
-########################
-# GEFSv13 Replay
-# https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/index.html
-# https://noaa-oar-sfsdev-pds.s3.amazonaws.com/index.html
-aws_path_replay="https://noaa-ufs-gefsv13replay-pds.s3.amazonaws.com/${dtg:0:4}/${dtg:4:2}/${dtg:0:8}06"
-aws_path_sfc="https://noaa-oar-sfsdev-pds.s3.amazonaws.com/input/c192/hr4_land/${dtg}"
-
-########################
 # for chgres
+m_target=${machine}
 export APRUN="srun"
 

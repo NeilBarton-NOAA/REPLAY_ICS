@@ -1,6 +1,7 @@
 #!/bin/bash
 set -xu
 dtg=${1}
+IC_SRC=${2}
 SCRIPT_DIR=${SCRIPT_DIR:-$(dirname "$0")}
 source ${SCRIPT_DIR}/defaults.sh
 

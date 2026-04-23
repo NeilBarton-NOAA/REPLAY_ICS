@@ -1,26 +1,43 @@
 #!/bin/sh
 set -xu
 dtg=${1}
-SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${dir_ocean}
+dir=${dir_restart_ocean}
 compiler=${chgres_compiler}
 
 ########################
 HOMEufs=${CODE_DIR}/UFS_UTILS
 OCNICEPREP=${HOMEufs}/reg_tests/ocnice_prep/parm
 EXEC=${HOMEufs}/exec/oiprep
-#FIXDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/FIX/rt_1191124
-#FIXDIR='/scratch1/NCEPDEV/stmp4/Denise.Worthen/CPLD_GRIDGEN/rt_1191124/'
-FIXDIR='/scratch1/NCEPDEV/nems/role.ufsutils/ufs_utils/reg_tests/cpld_gridgen/baseline_data'
+RT_DIR=${HOMEufs}/reg_tests
+source ${RT_DIR}/rt.control 
+FIXDIR=${HOMEreg}/cpld_gridgen/baseline_data
+
 ########################
 WORKDIR=${dir}/CHGRES
-mkdir -p ${WORKDIR} && cd ${WORKDIR}
+if [[ -d ${WORKDIR} ]]; then
+    rm ${WORKDIR}/*
+else
+    mkdir -p ${WORKDIR} 
+fi
+cd ${WORKDIR}
+
+if [[ ${OCNRES} == "mx025" ]]; then
+    SRCDIMS="360,320"
+    DSTDIMS="1440,1080"
+elif [[ ${OCNRES} == "mx100" ]]; then
+    SRCDIMS="1440,1080"
+    DSTDIMS="360,320"
+fi
 
 if [[ ! -f ${WORKDIR}/ocean.nc ]]; then
     echo 'Creating ${WORKDIR}/ocean.nc file'
-    ncks -v Temp,Salt,h,u ${dir}/${DTG_TEXT}.MOM.res.nc ${WORKDIR}/ocean.nc
-    ncks -v v,sfc -A ${dir}/${DTG_TEXT}.MOM.res_1.nc ${WORKDIR}/ocean.nc
+    if [[ ${IC_SRC} == *"CPC"* ]]; then
+        ncks -v Temp,Salt,h,sfc,u,v ${dir}/${DTG_TEXT}.MOM.res.nc ${WORKDIR}/ocean.nc
+    elif [[ ${IC_SRC} == REPLAY ]]; then
+        ncks -v Temp,Salt,h,u ${dir}/${DTG_TEXT}.MOM.res.nc ${WORKDIR}/ocean.nc
+        ncks -v v,sfc -A ${dir}/${DTG_TEXT}.MOM.res_1.nc ${WORKDIR}/ocean.nc
+    fi
 fi
 ln -sf ${OCNICEPREP}/ocean.csv ${WORKDIR}
 
@@ -29,17 +46,18 @@ cat << EOF > ocniceprep.nml
 ftype='ocean'
 wgtsdir="${FIXDIR}"
 griddir="${FIXDIR}"
-srcdims=1440,1080
-dstdims=360,320
+srcdims=${SRCDIMS}
+dstdims=${DSTDIMS}
 debug=.true.
 /
 EOF
 
 ########################
 # modules
+export sfcio_ver=1.4.2
 module purge
 module use ${HOMEufs}/modulefiles
-module load build.hera.${compiler}
+module load build.${machine}.${compiler}
 
 echo "Running $( basename ${EXEC} ) at ${PWD}"
 cp ${EXEC} .
@@ -48,11 +66,14 @@ if (( ${?} > 0 )); then
     echo 'chgres_OCN failed'
     exit 1
 fi
-if [[ ! -f ${WORKDIR}/ocean.mx100.nc ]]; then
-    echo "FATAL: ${WORKDIR}/ocean.mx100.nc not created"
+if [[ ! -f ${WORKDIR}/ocean.${OCNRES}.nc ]]; then
+    echo "FATAL: ${WORKDIR}/ocean.${OCNRES}.nc not created"
     exit 1
 fi
 
-mv ${WORKDIR}/ocean.mx100.nc ${dir}/${DTG_TEXT}.MOM.res.nc
+mv ${WORKDIR}/ocean.${OCNRES}.nc ${dir}/${DTG_TEXT}.MOM.res.nc
 rm -rf ${WORKDIR}
-rm ${dir}/${DTG_TEXT}.MOM.res_*.nc
+if [[ ${OCNRES} == "mx100" ]]; then
+    rm ${dir}/${DTG_TEXT}.MOM.res_*.nc
+fi
+exit 0

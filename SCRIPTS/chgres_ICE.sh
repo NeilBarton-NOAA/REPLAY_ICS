@@ -1,22 +1,36 @@
 #!/bin/sh
 set -xu
 dtg=${1}
-SCRIPT_DIR=$(dirname "$0")
 source ${SCRIPT_DIR}/defaults.sh
-dir=${dir_ice}
+dir=${dir_restart_ice}
 compiler=${chgres_compiler}
 
 ########################
 HOMEufs=${CODE_DIR}/UFS_UTILS
 OCNICEPREP=${HOMEufs}/reg_tests/ocnice_prep/parm
 EXEC=${HOMEufs}/exec/oiprep
-#FIXDIR=/scratch2/NCEPDEV/stmp3/Neil.Barton/CODE/FIX/rt_1191124
-#FIXDIR='/scratch1/NCEPDEV/stmp4/Denise.Worthen/CPLD_GRIDGEN/rt_1191124/'
-FIXDIR='/scratch1/NCEPDEV/nems/role.ufsutils/ufs_utils/reg_tests/cpld_gridgen/baseline_data'
+RT_DIR=${HOMEufs}/reg_tests
+source ${RT_DIR}/rt.control 
+FIXDIR=${HOMEreg}/cpld_gridgen/baseline_data
+
+########################
+if [[ ${OCNRES} == "mx025" ]]; then
+    SRCDIMS="360,320"
+    DSTDIMS="1440,1080"
+elif [[ ${OCNRES} == "mx100" ]]; then
+    SRCDIMS="1440,1080"
+    DSTDIMS="360,320"
+fi
 
 ########################
 WORKDIR=${dir}/CHGRES
-mkdir -p ${WORKDIR} && cd ${WORKDIR}
+if [[ -d ${WORKDIR} ]]; then
+    rm ${WORKDIR}/*
+else
+    mkdir -p ${WORKDIR} 
+fi
+cd ${WORKDIR}
+
 ln -sf ${dir}/${DTG_TEXT}.cice_model.res.nc ${WORKDIR}/ice.nc
 ln -sf ${OCNICEPREP}/ice.csv ${WORKDIR}
 
@@ -25,8 +39,8 @@ cat << EOF > ocniceprep.nml
 ftype='ice'
 wgtsdir="${FIXDIR}"
 griddir="${FIXDIR}"
-srcdims=1440,1080
-dstdims=360,320
+srcdims=${SRCDIMS}
+dstdims=${DSTDIMS}
 debug=.true.
 /
 EOF
@@ -34,8 +48,9 @@ EOF
 ########################
 # modules
 #module purge
+export sfcio_ver=1.4.2
 module use ${HOMEufs}/modulefiles
-module load build.hera.${compiler}
+module load build.${machine}.${compiler}
 
 ########################
 # run
@@ -47,11 +62,10 @@ if (( ${?} > 0 )); then
     echo 'chgres_ICE failed'
     exit 1
 fi
-if [[ ! -f ${WORKDIR}/ice.mx100.nc ]]; then
-    echo "FATAL: ${WORKDIR}/ice.mx100.nc not created"
+if [[ ! -f ${WORKDIR}/ice.${OCNRES}.nc ]]; then
+    echo "FATAL: ${WORKDIR}/ice.${OCNRES}.nc not created"
 fi
-#mv ${dir}/${DTG_TEXT}.cice_model.res.nc ${dir}/${DTG_TEXT}.cice_model.res_mx025.nc
 rm ${dir}/${DTG_TEXT}.cice_model.res.nc
-mv ${WORKDIR}/ice.mx100.nc ${dir}/${DTG_TEXT}.cice_model.res.nc
+mv ${WORKDIR}/ice.${OCNRES}.nc ${dir}/${DTG_TEXT}.cice_model.res.nc
 rm -rf ${WORKDIR}
-
+exit 0

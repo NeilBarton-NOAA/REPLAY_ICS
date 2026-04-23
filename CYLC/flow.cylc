@@ -12,7 +12,7 @@
 ## set DATES = "R1/20230501T0000Z" 
 
 {% if IC_SRC == "GFS" %}
-{% set DATES = "R1/20250501T0000Z" %}
+{% set DATES = "R1/20250101T0000Z" %}
 {% set MODELS = "gdasocean_restart gdasocean_analysis gdas_restarta gdas_restartb enkfgdas enkfgdas_restarta_grp1 enkfgdas_restartb_grp1 enkfgdas_restarta_grp2 enkfgdas_restartb_grp2 enkfgdas_restarta_grp3 enkfgdas_restartb_grp3" %}
 {% set MEMBERS = 0..30 %}
 {% endif %}

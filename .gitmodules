@@ -1,0 +1,3 @@
+[submodule "SCRIPTS/LAND_UPDATE"]
+	path = SCRIPTS/LAND_UPDATE
+	url = git@github.com:NOAA-EMC/land-data-utils.git

@@ -11,6 +11,15 @@ dir=${IC_DIR}
 PREFIX="SFS"
 f_extracted=${dir}/${dtg}_${file}_htar.log
 
+############
+# GFS Retro Run
+#   Aug 30 2022 to Oct 10 2022
+#   Mar  1 2024 to Nov 30 2025
+#   Nov 20 2025 to Feb 28 2026 (near real time run)
+#   ICs may be on Mondays
+export hpss_path=/5year/NCEPDEV/emc-global/emc.glopara/*/GFSv17/retrov17*
+
+# download 
 echo "DOWNLOADING GFS RESTARTS to ${dir}"
 echo "  ${f_extracted}"
 mkdir -p ${dir} && cd ${dir}
@@ -38,7 +47,7 @@ else
     dtg_closest=2025062900
     dtg_closest_minus6=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 6 hours ago" +%Y%m%d%H)
 fi
-############
+
 # rename to dtg_minus
 if [[ ${file} == 'gdasocean_restart' ]]; then
     files=$( grep MOM ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | sort  )
@@ -70,7 +79,6 @@ elif [[ ${file} == 'gdas_restartb' ]]; then
             MV ${f} ${PREFIX}
         done        
     done
-    #fv_core.res
     f=$(grep ${dtg_closest_minus6:0:8}.210000.fv_core.res.nc ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
     MV ${f} ${PREFIX}
 elif [[ ${file} == 'enkfgdas' ]]; then

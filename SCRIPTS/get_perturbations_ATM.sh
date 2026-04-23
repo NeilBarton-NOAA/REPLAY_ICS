@@ -1,6 +1,7 @@
 #!/bin/bash
 set -u
 dtg=${1}
+IC_SRC=${2}
 SCRIPT_DIR=${SCRIPT_DIR:-$(dirname "$0")}
 source ${SCRIPT_DIR}/defaults.sh
 inc_dir=${dir_inc_atmos}/perturbation

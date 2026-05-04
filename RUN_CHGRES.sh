@@ -1,12 +1,8 @@
 #!/bin/bash
 set -u
 # Run CHGRES for ICs
-#dtg=${1:-2026030100}
-#export IC_SRC=${2:-GFS}
-dtg=${1:-2022030100}
-export IC_SRC=${2:-CPC_land}
-#dtg=${1:-2022030100}
-#export IC_SRC=${2:-REPLAY}
+dtg=${1:-2026030100}
+export IC_SRC=${2:-GFS}
 export DEBUG=F
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS

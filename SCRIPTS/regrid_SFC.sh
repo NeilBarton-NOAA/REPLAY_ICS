@@ -1,6 +1,7 @@
 #!/bin/sh
 # https://noaa-emcufs-utils.readthedocs.io/en/latest/
 set -u
+set -x
 dtg=${1}
 SRC_ATMRES=${2:-'C1152'}
 MEM=${3:-'000'}
@@ -20,7 +21,6 @@ DATA=${dir}/REGRID
 [[ -d ${DATA} ]] && rm -r ${DATA}
 mkdir -p ${DATA} && cd ${DATA}
 echo "DATA dir ${DATA}"
-set -x
 if [[ ${MEM} == "000" ]]; then
     NAME="ensmean_increment"
     new_dir="${dir/mem000\//mem000\/ensstat\/}" 

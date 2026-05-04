@@ -2,6 +2,7 @@
 # https://noaa-emcufs-utils.readthedocs.io/en/latest/
 # for replay data
 set -u
+set -x
 dtg=${1}
 SRC_ATMRES=${2:-"C192"}
 SRC_OCNRES=${3:-"mx025"}
@@ -76,11 +77,13 @@ if [[ ${IC_SRC} == *"CPC"* ]]; then
     export ATM_FILES_INPUT="sfg_${dtg}_fhr06_mem012"
     export SFC_FILES_INPUT="bfg_${dtg}_fhr06_mem012"
     export CONVERT_NST=".false."
+    EXEC=chgres_cube_nesmio
 else
     export TRACERS_INPUT='"sphum","liq_wat","o3mr","ice_wat","rainwat","snowwat","graupel"'
     export INPUT_TYPE="restart"
     export ATM_FILES_INPUT="None"
     export CONVERT_NST=".true."
+    EXEC=chgres_cube_restart
 fi
 
 ########################
@@ -98,7 +101,7 @@ namelist="fort.41"
 # namelist options grid
 cat <<EOF > ${namelist}
 &config
- input_type="gaussian_nemsio"
+ input_type="${INPUT_TYPE}"
  fix_dir_target_grid="${OROG_DIR_TARGET_GRID}/sfc"
  mosaic_file_target_grid="${MOSAIC_FILE_TARGET_GRID}"
  orog_dir_target_grid="${OROG_DIR_TARGET_GRID}"
@@ -130,14 +133,13 @@ cat <<EOF >> ${namelist}
 /
 EOF
 fi
-${APRUN} -n 6 ${HOMEufs}/exec/chgres_cube
+${APRUN} -n 6 ${HOMEufs}/exec/${EXEC}
 if (( ${?} > 0 )); then
     echo 'chgres_ATM failed'
     exit 1
 fi
 
 # move files
-set -x
 mkdir -p ${dir_input_atmos}
 for n in $(seq 1 6); do
     mv out.atm.tile${n}.nc ${dir_input_atmos}/gfs_data.tile${n}.nc

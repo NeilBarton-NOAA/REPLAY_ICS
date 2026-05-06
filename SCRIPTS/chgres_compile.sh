@@ -1,5 +1,5 @@
 #!/bin/sh
-set -xu
+set -u
 IC_SRC=${1:-'GFS'}
 # compiles chgres program
 SCRIPT_DIR=$(dirname "$0")/SCRIPTS
@@ -20,7 +20,11 @@ cd ${CODE_DIR}/UFS_UTILS/fix
 bash link_fixdirs.sh emc ${m_target}
 
 # edit build
-build_file=${CODE_DIR}/UFS_UTILS/modulefiles/build.${target}.${compiler}.lua
+if [[ ${m_target} == "gaea" ]]; then
+    build_file=${CODE_DIR}/UFS_UTILS/modulefiles/build.${target}c6.${compiler}.lua
+else
+    build_file=${CODE_DIR}/UFS_UTILS/modulefiles/build.${target}.${compiler}.lua
+fi
 sed -i 's/--sfcio_ver/sfcio_ver/' ${build_file}
 sed -i 's/--load(pathJoin("sfcio"/load(pathJoin("sfcio"/' ${build_file}
 mkdir -p ${CODE_DIR} && cd ${CODE_DIR}
@@ -28,8 +32,8 @@ mkdir -p ${CODE_DIR} && cd ${CODE_DIR}
 # compile
 cd ${CODE_DIR}/UFS_UTILS
 
-# build for GFS/RESART ICs
-export sfcio_ver=1.4.2
+## build for GFS/RESART ICs
+[[ "${m_target}" == "ursa" ]] && export sfcio_ver=1.4.2
 bash build_all.sh
 if (( ${?} != 0 )); then
     echo 'COMPILE failed'

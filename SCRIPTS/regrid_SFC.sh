@@ -75,7 +75,7 @@ EOF
 
 # modules
 module purge
-export sfcio_ver=1.4.2
+[[ "${m_target}" == "ursa" ]] && export sfcio_ver=1.4.2
 module use ${HOMEufs}/modulefiles
 module load build.${m_target}.${compiler}
 

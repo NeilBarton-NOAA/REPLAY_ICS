@@ -59,8 +59,8 @@ RENAME_SFS() {
     local nf=${f}
     nf="${nf//enkfgdas/sfs}"
     nf="${nf//gdas/sfs}"
-    nf="${nf//${dtg_closest_minus6:0:8}/${dtg_minus6:0:8}}"  
-    nf="${nf//${dtg_closest:0:8}/${dtg:0:8}}"  
+    nf="${nf//${dtg_closest:0:8}/${dtg:0:8}}"
+    nf="${nf//${dtg_closest_minus6:0:8}/${dtg_minus6:0:8}}"
     if [[ ! ${nf} == *"mem"* ]]; then
         nf=$(echo "${nf}" | sed 's|\(/[0-9][0-9]/\)|\1mem000/|')
     fi

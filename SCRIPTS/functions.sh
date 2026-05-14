@@ -59,8 +59,11 @@ RENAME_SFS() {
     local nf=${f}
     nf="${nf//enkfgdas/sfs}"
     nf="${nf//gdas/sfs}"
-    nf="${nf//${dtg_closest:0:8}/${dtg:0:8}}"
-    nf="${nf//${dtg_closest_minus6:0:8}/${dtg_minus6:0:8}}"
+    if [[ "${nf}" == *"/18/"* ]]; then
+        nf="${nf//${dtg_closest:0:8}/${dtg_minus6:0:8}}"
+    else
+        nf="${nf//${dtg_closest:0:8}/${dtg:0:8}}"
+    fi
     if [[ ! ${nf} == *"mem"* ]]; then
         nf=$(echo "${nf}" | sed 's|\(/[0-9][0-9]/\)|\1mem000/|')
     fi
@@ -72,7 +75,7 @@ RENAME_SFS() {
         # Replace in string
         nf=$(printf "${nf/.i${num}.nc/.i%03d.nc}" "${new_num}")
     fi
-    echo ${nf}
+    f2=${nf}
 }
 
 RENAME_GFS() {
@@ -86,9 +89,11 @@ MV() {
     f1=${1}
     local PREFIX=${2}
     if [[ ${PREFIX} == "SFS" ]]; then
-        f2=$( RENAME_SFS ${f1} )
+        RENAME_SFS ${f1}
+        [[ $? > 0 ]] && exit 1
     else
-        f2=$( RENAME_GFS ${f1} )
+        RENAME_GFS ${f1}
+        [[ $? > 0 ]] && exit 1
     fi
     mkdir -p $( dirname ${f2} )
     if [[ ${MV_DATA:-"T"} == "T" ]]; then
@@ -104,8 +109,9 @@ MV() {
 GFS_RESTART_DTG() {
     dtg=${1}
     hpss_path=${2}
+    local file=${3}
     files=() && dtgs=()
-    all_files=$( hsi find ${hpss_path} -name "enkfgdas_restarta_grp1.tar" 2>&1 | grep NCEPDEV )
+    all_files=$( hsi find ${hpss_path} -name ${file} 2>&1 | grep NCEPDEV )
     for f in ${all_files}; do
         files+=(${f})
         dtgs+=($(echo "${f}" | cut -d'/' -f9))

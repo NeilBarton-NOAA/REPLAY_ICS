@@ -19,7 +19,6 @@ elif [[ ${IC_SRC} == "REPLAY" ]]; then
 elif [[ ${IC_SRC} == *"CPC"* ]]; then
     models="ATM OCN ICE"
     members="000"
-    SCRIPT_TAG=CPC
 fi
 
 for model in ${models}; do

@@ -18,13 +18,11 @@ elif [[ ${IC_SRC} == "DA_UPDATE" ]]; then
     files="gdasocean_restart gdasocean_analysis gdas_restarta gdas_restartb enkfgdas_restarta_grp1 enkfgdas_restartb_grp1"
     # comment out below if only need 10 members
     files="${files} enkfgdas_restarta_grp2 enkfgdas_restartb_grp2 enkfgdas_restarta_grp3 enkfgdas_restartb_grp3"
-    files="enkfgdas_restartb_grp1"
 elif [[ ${IC_SRC} == "REPLAY" ]] || [[ ${IC_SRC} == *"CPC"* ]]; then
     files="ATM OCN ICE"
 fi
 [[ ${IC_SRC} == *"CPC"* ]] && SCRIPT_TAG=CPC
 [[ ${IC_SRC} == "DA_UPDATE"* ]] && SCRIPT_TAG=GFS
-
 ####################################
 BACKGROUND_JOB=F && export MV_DATA=T && export DOWNLOAD=T
 for f in ${files}; do

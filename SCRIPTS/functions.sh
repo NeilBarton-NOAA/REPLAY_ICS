@@ -64,6 +64,11 @@ RENAME_SFS() {
     else
         nf="${nf//${dtg_closest:0:8}/${dtg:0:8}}"
     fi
+    if [[ "${nf}" == *"cice"* ]]; then
+        old="${dtg_closest_minus6:0:8}.210000"
+        new="${dtg_minus6:0:8}.210000"
+        nf="${nf//${old}/${new}}"
+    fi
     if [[ ! ${nf} == *"mem"* ]]; then
         nf=$(echo "${nf}" | sed 's|\(/[0-9][0-9]/\)|\1mem000/|')
     fi
@@ -78,13 +83,6 @@ RENAME_SFS() {
     f2=${nf}
 }
 
-RENAME_GFS() {
-    local f=${1}
-    local nf="${f//${dtg_closest:0:8}/${dtg_minus6:0:8}}"    
-    nf="${nf//${dtg_closest_plus6:0:8}/${dtg:0:8}}"  
-    echo ${nf}
-}
-
 MV() {
     f1=${1}
     local PREFIX=${2}
@@ -92,8 +90,8 @@ MV() {
         RENAME_SFS ${f1}
         [[ $? > 0 ]] && exit 1
     else
-        RENAME_GFS ${f1}
-        [[ $? > 0 ]] && exit 1
+        echo "FATAL rename PREFIX unknown ${PREFIX}"
+        exit 1
     fi
     mkdir -p $( dirname ${f2} )
     if [[ ${MV_DATA:-"T"} == "T" ]]; then
@@ -116,11 +114,11 @@ GFS_RESTART_DTG() {
         files+=(${f})
         dtgs+=($(echo "${f}" | cut -d'/' -f9))
     done
-    sec_target=$(date -d "${dtg:0:8}" +%s)
+    sec_target=$(date -d "${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00" +%s)
     dtg_closest="" && min_diff=-1
     for d in ${dtgs[@]}; do
         # Convert current date in loop to seconds
-        sec_current=$(date -d "${d:0:8}" +%s)
+        sec_current=$(date -d "${d:0:4}-${d:4:2}-${d:6:2} ${d:8:2}:00:00" +%s)
         # Calculate absolute difference
         diff=$(( sec_current - sec_target ))
         abs_diff=${diff#-} # This removes the negative sign if it exists

@@ -33,7 +33,7 @@ echo "Target: ${dtg}"
 echo "Closest match: ${dtg_closest}" 
 echo "Days Apart: ${day_diff}" 
 #hpss_file="${hpss_file//${dtg_closest}/${dtg_closest_minus6}}"    
-#dtg_closest_minus6=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 6 hours ago" +%Y%m%d%H)
+dtg_closest_minus6=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 6 hours ago" +%Y%m%d%H)
 #dtg_closest_plus18=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 18 hours" +%Y%m%d%H)
 echo $file
 if [[ ${DOWNLOAD:-T} == T ]]; then   

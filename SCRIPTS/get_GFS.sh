@@ -108,7 +108,11 @@ elif [[ "${file}" == "enkfgdas_restarta_grp"* ]]; then
         MV ${f} ${PREFIX}
         [[ $? > 0 ]] && exit 1
         # increments mom6, atm, and sfc
-        files=$(grep increment ${f_extracted} | grep -v tile | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 )
+        if [[ ${IC_SRC} == "DA_UPDATE" ]]; then
+            files=$(grep increment ${f_extracted} | grep mom6 | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 )
+        else
+            files=$(grep increment ${f_extracted} | grep -v tile | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 )
+        fi
         for f in ${files}; do
             MV ${f} ${PREFIX}
             [[ $? > 0 ]] && exit 1
@@ -117,18 +121,20 @@ elif [[ "${file}" == "enkfgdas_restarta_grp"* ]]; then
 elif [[ "${file}" == "enkfgdas_restartb_grp"* ]]; then
     members=$( grep 210000.fv_core.res.tile1 ${f_extracted} | cut -d' ' -f3 | cut -d'/' -f3 )
     for mem in ${members}; do
-        # atmos files
-        for f_res in ${restart_tile_files_atmos}; do
-            for t in {1..6}; do
-                f=$(grep ${dtg_closest:0:8}.210000.${f_res}.tile${t}.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-                MV ${f} ${PREFIX}
-                [[ $? > 0 ]] && exit 1
+        if [[ ${IC_SRC} != "DA_UPDATE" ]]; then
+            # atmos files
+            for f_res in ${restart_tile_files_atmos}; do
+                for t in {1..6}; do
+                    f=$(grep ${dtg_closest:0:8}.210000.${f_res}.tile${t}.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+                    MV ${f} ${PREFIX}
+                    [[ $? > 0 ]] && exit 1
+                done
             done
-        done
-        #fv_core.res
-        f=$(grep ${dtg_closest:0:8}.210000.fv_core.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-        MV ${f} ${PREFIX}
-        [[ $? > 0 ]] && exit 1
+            #fv_core.res
+            f=$(grep ${dtg_closest:0:8}.210000.fv_core.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+            MV ${f} ${PREFIX}
+            [[ $? > 0 ]] && exit 1
+        fi
         # mom6 files
         f=$(grep ${dtg_closest:0:8}.210000.MOM.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
         MV ${f} ${PREFIX}

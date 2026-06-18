@@ -32,6 +32,9 @@ elif [[ ${machine} == u* ]]; then
     export WORK_DIR=/scratch4/NCEPDEV/stmp/${USER}
     SUBMIT_SUFFIX="--mem=0 --qos=batch"
     SUBMIT_HPSS_SUFFIX="--mem=100G --partition=u1-service"
+elif [[ ${machine} == *[cd]login* ]]; then
+    machine=wcoss2
+    export WORK_DIR=/lfs/h2/emc/couple/noscrub/${USER}
 else
     echo 'FATAL: MACHINE UNKNOWN'
     exit 1

@@ -3,11 +3,12 @@
 # for replay data
 set -u
 set -x
-dtg=${1}
+dtg=${1:-$dtg}
 SRC_ATMRES=${2:-"C192"}
 SRC_OCNRES=${3:-"mx025"}
 MEM=${4:-'000'}
 IC_SRC=${5}
+NTASKS=${6:-12}
 source ${SCRIPT_DIR}/defaults.sh
 compiler=${chgres_compiler}
 dir=${dir_restart_atmos}
@@ -89,9 +90,14 @@ fi
 ########################
 # modules
 [[ "${m_target}" == "ursa" ]] && export sfcio_ver=1.4.2
-module purge
+if [[ ${m_target} == "wcoss2" ]]; then
+    module reset
+else
+    module purge
+fi
 module use ${HOMEufs}/modulefiles
 module load build.${m_target}.${compiler}
+module list
 
 mkdir -p ${COMIN}/CHGRES
 cd ${COMIN}/CHGRES
@@ -133,7 +139,7 @@ cat <<EOF >> ${namelist}
 /
 EOF
 fi
-${APRUN} -n 6 ${HOMEufs}/exec/${EXEC}
+${APRUN} -n ${NTASKS} ${HOMEufs}/exec/${EXEC}
 if (( ${?} > 0 )); then
     echo 'chgres_ATM failed'
     exit 1

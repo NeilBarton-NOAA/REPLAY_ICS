@@ -16,10 +16,15 @@ for mem in ${members}; do
     ATMRES="C384"
     JOB_NAME=REGRID.SFC.MEM${mem}.${dtg}
     NTASKS=12
-    WALLTIME="00:30:00"
+    WALLTIME="02:00:00"
     BACKGROUND_JOB=F
     source ${TOPDIR}/MACHINE/config.sh
     echo "${JOB_NAME}"
-    ${SUBMIT} ${SCRIPT_DIR}/regrid_SFC.sh ${dtg} ${ATMRES} ${mem}
+    if [[ ${BATCH_SYSTEM} == "sbatch" ]]; then
+        ${SUBMIT} ${SCRIPT_DIR}/regrid_SFC.sh ${dtg} ${ATMRES} ${mem}
+    elif [[ ${BATCH_SYSTEM} == "qsub" ]]; then
+        echo -e "${SUBMIT}\n${SCRIPT_DIR}/regrid_SFC.sh ${dtg} ${ATMRES} ${mem}" > submit_REGRID.sh
+        qsub submit_REGRID.sh
+    fi
     [[ ${?} > 0 ]] && echo "FATAL with SUBMIT_HPSS" && exit 1
 done

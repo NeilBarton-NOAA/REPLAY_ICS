@@ -11,6 +11,7 @@ NTASKS=${NTASKS:-1}
 BATCH_SYSTEM="sbatch"
 SUBMIT_SUFFIX=""
 SUBMIT_HPSS_SUFFIX=""
+export APRUN="srun"
 ############
 # scrath dir based in machine
 machine=$(uname -n)
@@ -32,13 +33,19 @@ elif [[ ${machine} == u* ]]; then
     export WORK_DIR=/scratch4/NCEPDEV/stmp/${USER}
     SUBMIT_SUFFIX="--mem=0 --qos=batch"
     SUBMIT_HPSS_SUFFIX="--mem=100G --partition=u1-service"
-elif [[ ${machine} == *[cd]login* ]]; then
+elif [[ ${machine} == *[cd]login* ]] || [[ ${machine} == nid* ]]; then
+    BATCH_SYSTEM="qsub"
     machine=wcoss2
-    export WORK_DIR=/lfs/h2/emc/couple/noscrub/${USER}
+    #export WORK_DIR=/lfs/h2/emc/couple/noscrub/${USER}
+    export WORK_DIR=/lfs/h2/emc/ptmp/${USER}
+    export APRUN="mpiexec"
+
 else
-    echo 'FATAL: MACHINE UNKNOWN'
+    echo 'FATAL: MACHINE UNKNOWN', ${machine}
     exit 1
 fi
+    
+if [[ ${BATCH_SYSTEM} == "sbatch" ]]; then
 SUBMIT_BASE="${BATCH_SYSTEM} 
     --job-name=${JOB_NAME} 
     --output=${TOPDIR}/logs/${JOB_NAME}.out
@@ -46,12 +53,33 @@ SUBMIT_BASE="${BATCH_SYSTEM}
     --time=${WALLTIME} 
     --account=${HPC_ACCOUNT} 
     --ntasks=${NTASKS}"
+
 SUBMIT="${SUBMIT_BASE} ${SUBMIT_SUFFIX}"
 SUBMIT_HPSS="${SUBMIT_BASE} ${SUBMIT_HPSS_SUFFIX}"
+
+elif [[ ${BATCH_SYSTEM} == "qsub" ]]; then
+SUBMIT="#!/bin/bash
+#PBS -N ${JOB_NAME} 
+#PBS -o $(readlink -m ${TOPDIR}/logs/${JOB_NAME}.out) 
+#PBS -e $(readlink -m ${TOPDIR}/logs/${JOB_NAME}.out) 
+#PBS -l walltime=0${WALLTIME}
+#PBS -l select=1:ncpus=${NTASKS} 
+#PBS -A ${HPC_ACCOUNT}
+#PBS -V"
+SUBMIT_HPSS="#!/bin/bash
+#PBS -N ${JOB_NAME} 
+#PBS -o $(readlink -m ${TOPDIR}/logs/${JOB_NAME}.out) 
+#PBS -e $(readlink -m ${TOPDIR}/logs/${JOB_NAME}.out) 
+#PBS -l walltime=0${WALLTIME}
+#PBS -l select=1:ncpus=1 
+#PBS -A ${HPC_ACCOUNT}
+#PBS -q dev_transfer
+#PBS -V"
+fi
 
 if [[ ${BACKGROUND_JOB:-F} == T ]]; then
     SUBMIT=""
     SUBMIT_HPSS=""
 fi
-
+mkdir -p ${TOPDIR}/logs
 source ${SCRIPT_DIR}/../MACHINE/modules.sh

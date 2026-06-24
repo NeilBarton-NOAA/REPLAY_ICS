@@ -46,5 +46,4 @@ export restart_files_ocean='MOM.res MOM.res_1 MOM.res_2 MOM.res_3'
 
 # for chgres
 m_target=${machine}
-export APRUN="srun"
 

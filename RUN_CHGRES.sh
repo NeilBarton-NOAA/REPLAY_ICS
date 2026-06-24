@@ -12,7 +12,7 @@ source ${TOPDIR}/SCRIPTS/defaults.sh
 
 if [[ ${IC_SRC} == "GFS" ]]; then
     models="ATM"
-    members=$( ls -d ${dir_restart_atmos%/mem000*}/mem*/ | grep -oP '(?<=mem)\d{3}')
+    members=$( ls ${dir_restart_atmos%/mem000*}/mem*/model/atmos/restart/*fv_core.res.nc | grep -oP '(?<=mem)\d{3}')
 elif [[ ${IC_SRC} == "REPLAY" ]]; then
     models="ATM"
     members="000"
@@ -24,16 +24,24 @@ fi
 for model in ${models}; do
     for mem in ${members}; do
         JOB_NAME=CHGRES.${IC_SRC}.${model}.MEM${mem}.${dtg}
-        NTASKS=12
-        WALLTIME="00:30:00"
-        source ${TOPDIR}/MACHINE/config.sh
+        mem=${mem}
         if [[ ${mem} == "000" && ${IC_SRC} == GFS ]]; then
             ATMRES="C1152"
+            WALLTIME="01:00:00"
+            NTASKS=24
         else
             ATMRES="C384"
+            WALLTIME="00:30:00"
+            NTASKS=12
         fi
+        source ${TOPDIR}/MACHINE/config.sh
         echo "${JOB_NAME}"
-        ${SUBMIT} ${SCRIPT_DIR}/chgres_${model}.sh ${dtg} ${ATMRES} mx025 ${mem} ${IC_SRC}
+        if [[ ${BATCH_SYSTEM} == "sbatch" ]]; then
+            ${SUBMIT} ${SCRIPT_DIR}/chgres_${model}.sh ${dtg} ${ATMRES} mx025 ${mem} ${IC_SRC} ${NTASKS}
+        elif [[ ${BATCH_SYSTEM} == "qsub" ]]; then
+            echo -e "${SUBMIT}\n${SCRIPT_DIR}/chgres_${model}.sh ${dtg} ${ATMRES} mx025 ${mem} ${IC_SRC} ${NTASKS}" > submit_CHGRES.sh
+            qsub submit_CHGRES.sh
+        fi
         [[ ${?} > 0 ]] && echo "FATAL with SUBMIT_HPSS" && exit 1
     done
 done

@@ -11,6 +11,8 @@ export compiler=${chgres_compiler}
 export target=${m_target}
 
 
+mkdir -p ${CODE_DIR}
+cd ${CODE_DIR}
 git clone ${CODE}
 cd ${CODE_DIR}/UFS_UTILS
 git checkout ${HASH}

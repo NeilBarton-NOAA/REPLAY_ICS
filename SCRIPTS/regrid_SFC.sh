@@ -76,6 +76,11 @@ EOF
 # modules
 module purge
 [[ "${m_target}" == "ursa" ]] && export sfcio_ver=1.4.2
+if [[ ${m_target} == "wcoss2" ]]; then
+    module reset
+else
+    module purge
+fi
 module use ${HOMEufs}/modulefiles
 module load build.${m_target}.${compiler}
 
@@ -90,4 +95,5 @@ for f in ${files}; do
     echo "mv ${DATA}/${f} ${dir}/${f//.mem1/}"
     mv ${DATA}/${f} ${dir}/${f//.mem1/}
 done
+rm -r ${DATA}
 echo "regrid_SFC.sh SUCCESSFUL"

@@ -41,6 +41,7 @@ for model in ${models}; do
         elif [[ ${BATCH_SYSTEM} == "qsub" ]]; then
             echo -e "${SUBMIT}\n${SCRIPT_DIR}/chgres_${model}.sh ${dtg} ${ATMRES} mx025 ${mem} ${IC_SRC} ${NTASKS}" > submit_CHGRES.sh
             qsub submit_CHGRES.sh
+            rm submit_CHRES.sh
         fi
         [[ ${?} > 0 ]] && echo "FATAL with SUBMIT_HPSS" && exit 1
     done

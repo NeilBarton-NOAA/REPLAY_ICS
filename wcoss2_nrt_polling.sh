@@ -5,32 +5,33 @@ dir_nrt="/lfs/h2/emc/gfstemp/emc.global/comroot/retrov17_01_realtime"
 SCRIPT_DIR=${PWD}/SCRIPTS
 source ${SCRIPT_DIR}/defaults.sh
 dir_sfs=${WORK_DIR}/ICs/GFS/C192mx025
-echo ${dir_nrt}
-echo ${dir_sfs}
 
 main(){
 local dtg=$1
+echo ""
+current_date=$(date)
+echo "CURRENT date ${current_date}"
+echo    'dir of realtime GFS', ${dir_nrt}
+echo    'dir of sfs ice',      ${dir_sfs}
 n_files=$( find ${dir_nrt}/*.${dtg:0:8}/${dtg:8:10} -name *mom6_increment*.nc 2>/dev/null | wc -l )
 if [[ ${n_files} == 0 ]]; then
-    echo "CURRENT date", date
     echo "FILES FOR ${dtg} not found"
     exit 0
 fi
 
-#COUNT_FILES
-#if [[ ${NUM_FILES} == ]]; then
-#    echo "FILES ALREADY PROCESSED FOR" ${dtg}
-#    exit 0
-#fi
+COUNT_FILES
+if (( ${NUM_FILES} >= 908 )); then
+    echo "FILES ALREADY PROCESSED FOR" ${dtg}
+    exit 0
+fi
 
 FIND_AND_COPY "${restart_tile_files_atmos} analysis.cice_model.res ${restart_files_ocean}"
 FIND_AND_COPY "increment.sfc increment.atm mom6_increment ensmean_increment.sfc recentered_increment.atm"
-COUNT_FILES 
 ${PWD}/RUN_CHGRES.sh ${dtg} GFS
 ${PWD}/RUN_REGRID.sh ${dtg} GFS
 while [[ $(qstat -u "${USER}" | grep -E -c "CHGRES|REGRID") -gt 0 ]]; do
     echo "WAITING UNTIL CHGRES and REGRID Jobs are Finished"
-    sleep 60  # Wait 30 seconds before checking again
+    sleep 60  # Wait 60 seconds before checking again
 done
 
 # htar into groups
@@ -108,10 +109,11 @@ HTAR_MEMBERS() {
     ds=""
     for mem in $(seq ${mem_l} ${mem_h}); do
         m=$(printf "%03d" ${mem})
-        ds="${ds} sfs.${dtg:0:8}/${dtg:8:2}/mem${m}/* sfs.${dtg_minus6:0:8}.${dtg_minus6:8:2}/mem${m}/*"
+        ds="${ds} sfs.${dtg:0:8}/${dtg:8:2}/mem${m}/* sfs.${dtg_minus6:0:8}/${dtg_minus6:8:2}/mem${m}/*"
     done
-    JOB_NAME=HTAR.SFSICS.${dtg}
+    JOB_NAME=HTAR.SFSICS.${dtg}.${mem_l}to${mem_h}
     source ${PWD}/MACHINE/config.sh
+    echo ${JOB_NAME}
     echo -e "${SUBMIT_HPSS}\ncd ${dir_sfs}\nhtar -cvf ${f} ${ds}"> submit_HTAR.sh
     qsub submit_HTAR.sh
 }

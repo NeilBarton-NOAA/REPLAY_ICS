@@ -7,7 +7,8 @@ export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 source ${TOPDIR}/MACHINE/config.sh
 source ${TOPDIR}/SCRIPTS/defaults.sh
-
+export ATMRES=C384
+BACKGROUND_JOB=T && export MV_DATA=T && export DOWNLOAD=T
 ####################################
 if [[ ${IC_SRC} == "GFS" ]]; then
     files="gdasocean_restart gdasocean_analysis gdas_restarta gdas_restartb enkfgdas \
@@ -24,7 +25,6 @@ fi
 [[ ${IC_SRC} == *"CPC"* ]] && SCRIPT_TAG=CPC
 [[ ${IC_SRC} == "DA_UPDATE"* ]] && SCRIPT_TAG=GFS
 ####################################
-BACKGROUND_JOB=F && export MV_DATA=T && export DOWNLOAD=T
 for f in ${files}; do
     JOB_NAME=GET.${IC_SRC}.${f}.${dtg} && echo ${JOB_NAME}
     source ${TOPDIR}/MACHINE/config.sh

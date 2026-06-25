@@ -95,5 +95,6 @@ for f in ${files}; do
     echo "mv ${DATA}/${f} ${dir}/${f//.mem1/}"
     mv ${DATA}/${f} ${dir}/${f//.mem1/}
 done
+rm ${dir}/*increment.sfc.i*.nc 
 rm -r ${DATA}
 echo "regrid_SFC.sh SUCCESSFUL"

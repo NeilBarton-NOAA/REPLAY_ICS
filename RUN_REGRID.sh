@@ -25,6 +25,7 @@ for mem in ${members}; do
     elif [[ ${BATCH_SYSTEM} == "qsub" ]]; then
         echo -e "${SUBMIT}\n${SCRIPT_DIR}/regrid_SFC.sh ${dtg} ${ATMRES} ${mem}" > submit_REGRID.sh
         qsub submit_REGRID.sh
+        rm submit_REGRID.sh
     fi
     [[ ${?} > 0 ]] && echo "FATAL with SUBMIT_HPSS" && exit 1
 done

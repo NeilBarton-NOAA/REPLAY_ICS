@@ -10,7 +10,6 @@ NENS=${NENS:-10}
 source ${SCRIPT_DIR}/../MACHINE/config.sh
 
 # location of code and downloads
-CODE_DIR=${WORK_DIR}/CODE/IC_PROCESSING
 if [[ ${IC_SRC} == "SCOUT" ]]; then
     SCOUT_VERSION=${SCOUT_VERSION:-'SFv1.01'}
     export IC_DIR=${WORK_DIR}/ICs/${SCOUT_VERSION}/${ATMRES}${OCNRES} 

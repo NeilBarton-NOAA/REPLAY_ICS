@@ -1,1 +1,5 @@
-0 0,12 * * * /u/neil.barton/IC_PROCESSING/wcoss2_nrt_polling.sh $(date +\%Y\%m0100) >> /u/neil.barton/IC_PROCESSING/logs/sfs_ics_$(date +\%Y\%m0100).log 2>&1
+########################
+# grabbing GFS NRT ICs for SFS
+SHELL=/bin/bash -l
+2 0,12 1-5 * * /u/neil.barton/IC_PROCESSING/wcoss2_nrt_polling.sh $(date +\%Y\%m0100) >> /u/neil.barton/IC_PROCESSING/logs/sfs_ics_$(date +\%Y\%m0100).log 2>&1
+########################

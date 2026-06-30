@@ -21,6 +21,7 @@ elif [[ ${IC_SRC} == "DA_UPDATE" ]]; then
     files="${files} enkfgdas_restarta_grp2 enkfgdas_restartb_grp2 enkfgdas_restarta_grp3 enkfgdas_restartb_grp3"
 elif [[ ${IC_SRC} == "REPLAY" ]] || [[ ${IC_SRC} == *"CPC"* ]]; then
     files="ATM OCN ICE"
+    [[ ${ATMRES} == "C384" ]] && files="${files} MED"
 fi
 [[ ${IC_SRC} == *"CPC"* ]] && SCRIPT_TAG=CPC
 [[ ${IC_SRC} == "DA_UPDATE"* ]] && SCRIPT_TAG=GFS
@@ -31,4 +32,3 @@ for f in ${files}; do
     ${SUBMIT_HPSS} ${SCRIPT_DIR}/get_${SCRIPT_TAG:-$IC_SRC}.sh ${dtg} ${f} ${IC_SRC} 
     [[ ${?} > 0 ]] && echo "FATAL with SUBMIT_HPSS" && exit 1
 done 
-

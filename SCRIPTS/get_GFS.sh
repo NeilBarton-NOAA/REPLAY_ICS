@@ -1,15 +1,12 @@
 #!/bin/bash
 set -u
-set -x
 export dtg=${1}
 file=${2} # gdasocean_restart, gdas_restartb, gdasice_restart, enkfgdas_restartb_grp1, enkfgdas_restarta_grp1
 DEBUG=${DEBUG:-F}
-#SCRIPT_DIR=${SCRIPT_DIR:-$(dirname "$0")}
 export IC_SRC=${3:-GFS}
 source ${SCRIPT_DIR}/functions.sh
 source ${SCRIPT_DIR}/defaults.sh
 dir=${IC_DIR}
-PREFIX="SFS"
 f_extracted=${dir}/${dtg}_${file}_htar.log
 
 ############
@@ -25,17 +22,18 @@ elif [[ ${IC_SRC} == "DA_UPDATE" ]]; then
 fi
 
 # download 
-echo "DOWNLOADING GFS RESTARTS to ${dir}"
+echo "GFS RESTARTS to ${dir}"
 echo "  ${f_extracted}"
 mkdir -p ${dir} && cd ${dir}
-GFS_RESTART_DTG ${dtg} ${hpss_path} ${file}.tar 
+GFS_RESTART_DTG ${dtg} ${hpss_path} gdasocean_restart.tar
 echo "Target: ${dtg}" 
 echo "Closest match: ${dtg_closest}" 
 echo "Days Apart: ${day_diff}" 
-#hpss_file="${hpss_file//${dtg_closest}/${dtg_closest_minus6}}"    
+hpss_file=${hpss_file//gdasocean_restart/${file}}
 dtg_closest_minus6=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 6 hours ago" +%Y%m%d%H)
-#dtg_closest_plus18=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 18 hours" +%Y%m%d%H)
-echo $file
+if [[ ${file} =~ ^(gdas_restarta|enkfgdas_restarta_grp1|gdasocean_analysis|enkfgdas)$ ]] ; then
+    hpss_file="${hpss_file//${dtg_closest_minus6}/${dtg_closest}}"
+fi
 if [[ ${DOWNLOAD:-T} == T ]]; then   
     echo "Downloading: ${hpss_file}"
     [[ -f ${f_extracted} ]] && rm ${f_extracted}
@@ -52,15 +50,15 @@ if [[ "${file}" == "gdasocean_restart" ]]; then
     files=$( grep MOM ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | sort  )
     [[ "${#files}" == 0 ]] && exit 1
     for f in ${files}; do
-        MV ${f} ${PREFIX}
+        MV ${f}
         [[ $? > 0 ]] && exit 1
     done        
 elif [[ "${file}" == "gdasocean_analysis" ]]; then
     f=$(grep mom6_incre ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-    MV ${f} ${PREFIX}
+    MV ${f}
     [[ $? > 0 ]] && exit 1
     f=$(grep cice ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-    MV ${f} ${PREFIX}
+    MV ${f}
     [[ $? > 0 ]] && exit 1
 elif [[ "${file}" == "gdas_restarta" ]]; then
     if [[ ${IC_SRC} == "GFS" ]]; then
@@ -71,33 +69,33 @@ elif [[ "${file}" == "gdas_restarta" ]]; then
     for f_res in ${sfc_files}; do
         for t in {1..6}; do
             f=$(grep ${f_res}.tile${t}.nc ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-            MV ${f} ${PREFIX}
+            MV ${f}
             [[ $? > 0 ]] && exit 1
         done
     done
     files=$(grep gdas.t00z.increment.atm ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1)
     [[ "${#files}" == 0 ]] && exit 1
     for f in ${files}; do
-        MV ${f} ${PREFIX}
+        MV ${f}
         [[ $? > 0 ]] && exit 1
     done
 elif [[ "${file}" == "gdas_restartb" ]]; then
     for t in {1..6}; do
         files='ca_data fv_core.res fv_srf_wnd.res fv_tracer.res phy_data'
         for f_res in ${restart_tile_files_atmos}; do
-            f=$(grep "${dtg_closest:0:8}.210000.${f_res}.tile${t}.nc" ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-            MV ${f} ${PREFIX}
+            f=$(grep "${dtg_closest_minus6:0:8}.210000.${f_res}.tile${t}.nc" ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+            MV ${f}
             [[ $? > 0 ]] && exit 1
         done        
     done
-    f=$(grep "${dtg_closest:0:8}.210000.fv_core.res.nc" ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-    MV ${f} ${PREFIX}
+    f=$(grep "${dtg_closest_minus6:0:8}.210000.fv_core.res.nc" ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+    MV ${f}
     [[ $? > 0 ]] && exit 1
 elif [[ "${file}" == "enkfgdas" ]]; then
     files=$( grep ensmean_increment.sfc.i ${f_extracted} | cut -d' ' -f3 | cut -d',' -f1 )
     [[ "${#files}" == 0 ]] && exit 1
     for f in ${files}; do
-        MV ${f} ${PREFIX}
+        MV ${f}
         [[ $? > 0 ]] && exit 1
     done
 elif [[ "${file}" == "enkfgdas_restarta_grp"* ]]; then
@@ -105,7 +103,7 @@ elif [[ "${file}" == "enkfgdas_restarta_grp"* ]]; then
     for mem in ${members}; do
         # cice restart
         f=$(grep cice_model ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-        MV ${f} ${PREFIX}
+        MV ${f}
         [[ $? > 0 ]] && exit 1
         # increments mom6, atm, and sfc
         if [[ ${IC_SRC} == "DA_UPDATE" ]]; then
@@ -114,7 +112,7 @@ elif [[ "${file}" == "enkfgdas_restarta_grp"* ]]; then
             files=$(grep increment ${f_extracted} | grep -v tile | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 )
         fi
         for f in ${files}; do
-            MV ${f} ${PREFIX}
+            MV ${f}
             [[ $? > 0 ]] && exit 1
         done
     done
@@ -125,23 +123,23 @@ elif [[ "${file}" == "enkfgdas_restartb_grp"* ]]; then
             # atmos files
             for f_res in ${restart_tile_files_atmos}; do
                 for t in {1..6}; do
-                    f=$(grep ${dtg_closest:0:8}.210000.${f_res}.tile${t}.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-                    MV ${f} ${PREFIX}
+                    f=$(grep ${dtg_closest_minus6:0:8}.210000.${f_res}.tile${t}.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+                    MV ${f}
                     [[ $? > 0 ]] && exit 1
                 done
             done
             #fv_core.res
-            f=$(grep ${dtg_closest:0:8}.210000.fv_core.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-            MV ${f} ${PREFIX}
+            f=$(grep ${dtg_closest_minus6:0:8}.210000.fv_core.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+            MV ${f}
             [[ $? > 0 ]] && exit 1
         fi
         # mom6 files
-        f=$(grep ${dtg_closest:0:8}.210000.MOM.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-        MV ${f} ${PREFIX}
+        f=$(grep ${dtg_closest_minus6:0:8}.210000.MOM.res.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+        MV ${f}
         [[ $? > 0 ]] && exit 1
         for t in {1..3}; do
-            f=$(grep ${dtg_closest:0:8}.210000.MOM.res_${t}.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
-            MV ${f} ${PREFIX}
+            f=$(grep ${dtg_closest_minus6:0:8}.210000.MOM.res_${t}.nc ${f_extracted} | grep ${mem} | cut -d' ' -f3 | cut -d',' -f1 | head -n 1)
+            MV ${f}
             [[ $? > 0 ]] && exit 1
         done 
     done

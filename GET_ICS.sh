@@ -3,12 +3,12 @@ set -u
 # Get ICs for GFS or CPC
 dtg=${1:-2026030100}
 export IC_SRC=${2:-GFS}
+export ATMRES=${3:-C192}
 export TOPDIR=${PWD}
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 source ${TOPDIR}/MACHINE/config.sh
 source ${TOPDIR}/SCRIPTS/defaults.sh
-export ATMRES=C384
-BACKGROUND_JOB=T && export MV_DATA=T && export DOWNLOAD=T
+BACKGROUND_JOB=F && export MV_DATA=T && export DOWNLOAD=T
 ####################################
 if [[ ${IC_SRC} == "GFS" ]]; then
     files="gdasocean_restart gdasocean_analysis gdas_restarta gdas_restartb enkfgdas \

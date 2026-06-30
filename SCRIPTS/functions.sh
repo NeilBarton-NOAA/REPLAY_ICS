@@ -60,7 +60,7 @@ RENAME_SFS() {
     nf="${nf//enkfgdas/sfs}"
     nf="${nf//gdas/sfs}"
     if [[ "${nf}" == *"/18/"* ]]; then
-        nf="${nf//${dtg_closest:0:8}/${dtg_minus6:0:8}}"
+        nf="${nf//${dtg_closest_minus6:0:8}/${dtg_minus6:0:8}}"
     else
         nf="${nf//${dtg_closest:0:8}/${dtg:0:8}}"
     fi
@@ -85,20 +85,13 @@ RENAME_SFS() {
 
 MV() {
     f1=${1}
-    local PREFIX=${2}
-    if [[ ${PREFIX} == "SFS" ]]; then
-        RENAME_SFS ${f1}
-        [[ $? > 0 ]] && exit 1
-    else
-        echo "FATAL rename PREFIX unknown ${PREFIX}"
-        exit 1
-    fi
+    RENAME_SFS ${f1}
     mkdir -p $( dirname ${f2} )
     if [[ ${MV_DATA:-"T"} == "T" ]]; then
-        echo "mv ${f1} ${f2} ${PREFIX}"
+        echo "mv ${f1} ${f2}"
         mv ${f1} ${f2}
     else
-        echo "ln -sf ${f1} ${f2} ${PREFIX}"
+        echo "ln -sf ${f1} ${f2}"
         f1=$(realpath --relative-to=$(dirname "$f2") "$f1")
         ln -sf ${f1} ${f2}
     fi
@@ -108,13 +101,17 @@ GFS_RESTART_DTG() {
     dtg=${1}
     hpss_path=${2}
     local file=${3}
+    local find_command=${4:-F}
+    find_file=${SCRIPT_DIR}/../logs/${file}.log
+    if [[ ! -f ${find_file} ]] || [[ ${find_command} == T ]]; then
+        hsi find ${hpss_path} -name ${file} 2>&1 | grep NCEPDEV | sort > ${find_file}
+    fi
     files=() && dtgs=()
-    all_files=$( hsi find ${hpss_path} -name ${file} 2>&1 | grep NCEPDEV )
-    for f in ${all_files}; do
+    while IFS= read -r f; do
         files+=(${f})
         dtgs+=($(echo "${f}" | cut -d'/' -f9))
-    done
-    sec_target=$(date -d "${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00" +%s)
+    done < ${find_file}
+    sec_target=$(date -d "${dtg:0:4}-${dtg:4:2}-${dtg:6:2} ${dtg:8:2}:00:00 6 hours ago" +%s)
     dtg_closest="" && min_diff=-1
     for d in ${dtgs[@]}; do
         # Convert current date in loop to seconds
@@ -135,6 +132,7 @@ GFS_RESTART_DTG() {
     for i in "${!dtgs[@]}"; do
         if [[ "${dtgs[${i}]}" == "${dtg_closest}" ]]; then
             hpss_file=${files[${i}]}
+            dtg_closest=$(date -d"${dtg_closest:0:8} ${dtg_closest:8:2} 6 hours" +%Y%m%d%H)
             return 0
         fi
     done

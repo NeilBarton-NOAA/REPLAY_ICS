@@ -160,6 +160,7 @@ if [[ ${INPUT_TYPE} == 'restart' ]]; then
 else
     rm ${ATM_FILES_INPUT} ${SFC_FILES_INPUT}
 fi
-rm -r ${dir_restart_atmos}/../../atmos
+cd ${dir_restart_atmos}/../../
+rm -r atmos
 
 echo "chgres_ATM.sh SUCCESSFUL"

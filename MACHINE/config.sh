@@ -41,7 +41,7 @@ elif [[ ${machine} == *[cd]login* ]] || [[ ${machine} == nid* ]]; then
     BATCH_SYSTEM="qsub"
     machine=wcoss2
     CODE_DIR=/lfs/h2/emc/couple/noscrub/${USER}/CODE/IC_PROCESSING
-    export WORK_DIR=/lfs/h2/emc/ptmp/${USER}
+    export WORK_DIR=/lfs/h2/emc/stmp/${USER}
     export APRUN="mpiexec"
 
 else

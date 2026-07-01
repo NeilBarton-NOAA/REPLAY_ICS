@@ -21,7 +21,7 @@ if [[ ${n_files} == 0 ]]; then
 fi
 
 COUNT_FILES
-if (( ${NUM_FILES} != 1605 )); then
+if (( ${NUM_FILES} == 1605 )); then
     echo "FILES ALREADY PROCESSED FOR" ${dtg}
     exit 0
 fi
@@ -122,4 +122,4 @@ HTAR_MEMBERS() {
 }
 
 main ${dtg}
-
+[[ "${USER}" == "neil.barton" ]] && rocotoDEAD -r

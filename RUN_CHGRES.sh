@@ -28,11 +28,11 @@ for model in ${models}; do
         if [[ ${mem} == "000" && ${IC_SRC} == GFS ]]; then
             ATMRES="C1152"
             WALLTIME="01:00:00"
-            NTASKS=12
-            #NTASKS=24 for WCOSS2 
+            #NTASKS=12
+            NTASKS=24 #for WCOSS2 
         else
             ATMRES="C384"
-            WALLTIME="00:30:00"
+            WALLTIME="00:31:00"
             NTASKS=12
         fi
         source ${TOPDIR}/MACHINE/config.sh

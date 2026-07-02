@@ -2,7 +2,7 @@ set -u
 ############
 # defaults
 SCRIPT_DIR=${SCRIPT_DIR:-$PWD}
-IC_SRC=${IC_SRC:-"REPLAY"} # REPLAY, GFS, SCOUT
+IC_SRC=${IC_SRC:-"GFS"} # REPLAY, GFS, SCOUT
 ATMRES=${ATMRES:-"C192"}
 OCNRES=${OCNRES:-"mx025"}
 run=${run:-sfs}

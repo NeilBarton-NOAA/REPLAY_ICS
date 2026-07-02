@@ -4,7 +4,7 @@ set -u
 dtg=${1:-2026030100}
 export IC_SRC=${2:-GFS} 
 export DEBUG=F
-export TOPDIR=${PWD}
+export TOPDIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 export SCRIPT_DIR=${TOPDIR}/SCRIPTS
 source ${TOPDIR}/MACHINE/config.sh
 source ${TOPDIR}/SCRIPTS/defaults.sh

@@ -27,14 +27,14 @@ elif [[ ${machine} == hercules* ]]; then
 elif [[ ${machine} == gaea* || ${machine} == dtn* || ${machine} == c6* ]]; then
     machine=gaea
     export WORK_DIR=/gpfs/f6/sfs-emc/scratch/${USER}
-    CODE_DIR=${WORK_DIR}/CODE/IC_PROCESSING
+    CODE_DIR=${NS_WORKDIR}/CODE/IC_PROCESSING
     SUBMIT_SUFFIX="--qos=normal --clusters=c6 --partition=batch"
     SUBMIT_HPSS_SUFFIX="--mem=100G --qos=hpss --clusters=es --partition=dtn_f5_f6 --constraint=f6"
 elif [[ ${machine} == u* ]]; then
     machine=ursa
     export chgres_compiler=intelllvm
     export WORK_DIR=/scratch4/NCEPDEV/stmp/${USER}
-    CODE_DIR=${WORK_DIR}/CODE/IC_PROCESSING
+    CODE_DIR=${NS_WORKDIR}/CODE/IC_PROCESSING
     SUBMIT_SUFFIX="--mem=0 --qos=batch"
     SUBMIT_HPSS_SUFFIX="--mem=100G --partition=u1-service"
 elif [[ ${machine} == *[cd]login* ]] || [[ ${machine} == nid* ]] || [[ ${machine} == *dx* ]]; then

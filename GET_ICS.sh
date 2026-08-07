@@ -14,7 +14,7 @@ if [[ ${IC_SRC} == "GFS" ]]; then
     files="gdasocean_restart gdasocean_analysis gdas_restarta gdas_restartb enkfgdas \
            enkfgdas_restarta_grp1 enkfgdas_restartb_grp1"
     # comment out below if only need 10 members
-    files="${files} enkfgdas_restarta_grp2 enkfgdas_restartb_grp2 enkfgdas_restarta_grp3 enkfgdas_restartb_grp3"
+    #files="${files} enkfgdas_restarta_grp2 enkfgdas_restartb_grp2 enkfgdas_restarta_grp3 enkfgdas_restartb_grp3"
 elif [[ ${IC_SRC} == "DA_UPDATE" ]]; then
     files="gdasocean_restart gdasocean_analysis gdas_restartb enkfgdas_restarta_grp1 enkfgdas_restartb_grp1"
     # comment out below if only need 10 members
@@ -29,6 +29,12 @@ fi
 for f in ${files}; do
     JOB_NAME=GET.${IC_SRC}.${f}.${dtg} && echo ${JOB_NAME}
     source ${TOPDIR}/MACHINE/config.sh
-    ${SUBMIT_HPSS} ${SCRIPT_DIR}/get_${SCRIPT_TAG:-$IC_SRC}.sh ${dtg} ${f} ${IC_SRC} 
+    if [[ ${BATCH_SYSTEM} == "sbatch" ]] || [[ ${BACKGROUND_JOB} == T ]]; then
+        ${SUBMIT_HPSS} ${SCRIPT_DIR}/get_${SCRIPT_TAG:-$IC_SRC}.sh ${dtg} ${f} ${IC_SRC} 
+    elif [[ ${BATCH_SYSTEM} == "qsub" ]]; then
+        echo -e "${SUBMIT_HPSS}\n${SCRIPT_DIR}/get_${SCRIPT_TAG:-$IC_SRC}.sh ${dtg} ${f} ${IC_SRC}" > submit_GETICS.sh
+        qsub submit_GETICS.sh
+        rm submit_GETICS.sh
+    fi
     [[ ${?} > 0 ]] && echo "FATAL with SUBMIT_HPSS" && exit 1
 done 

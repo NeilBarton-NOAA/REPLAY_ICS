@@ -37,13 +37,12 @@ elif [[ ${machine} == u* ]]; then
     CODE_DIR=${WORK_DIR}/CODE/IC_PROCESSING
     SUBMIT_SUFFIX="--mem=0 --qos=batch"
     SUBMIT_HPSS_SUFFIX="--mem=100G --partition=u1-service"
-elif [[ ${machine} == *[cd]login* ]] || [[ ${machine} == nid* ]]; then
+elif [[ ${machine} == *[cd]login* ]] || [[ ${machine} == nid* ]] || [[ ${machine} == *dx* ]]; then
     BATCH_SYSTEM="qsub"
     machine=wcoss2
     CODE_DIR=/lfs/h2/emc/couple/noscrub/${USER}/CODE/IC_PROCESSING
     export WORK_DIR=/lfs/h2/emc/stmp/${USER}
     export APRUN="mpiexec"
-
 else
     echo 'FATAL: MACHINE UNKNOWN', ${machine}
     exit 1
